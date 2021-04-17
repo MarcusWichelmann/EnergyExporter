@@ -21,7 +21,7 @@ namespace SolarEdgeExporter.Modbus
         private readonly ILogger<ModbusReader> _logger;
         private readonly IOptions<SolarEdgeOptions> _solarEdgeOptions;
 
-        private readonly ModbusTcpClient _modbusClient = new ModbusTcpClient();
+        private readonly ModbusTcpClient _modbusClient = new();
 
         public ModbusReader(ILogger<ModbusReader> logger, IOptions<SolarEdgeOptions> solarEdgeOptions)
         {
@@ -35,10 +35,10 @@ namespace SolarEdgeExporter.Modbus
                 Reconnect();
 
             // Read registers. Each register consists of 2 bytes.
-            Span<byte> data = _modbusClient.ReadHoldingRegisters(ModbusUnit, startRegister, registerCount);
-            if (data.Length != registerCount * 2)
+            var registers = _modbusClient.ReadHoldingRegisters(ModbusUnit, startRegister, registerCount);
+            if (registers.Length != registerCount * 2)
                 throw new ModbusReadException(
-                    $"Reading registers failed: Expected {registerCount * 2} bytes but received {data.Length}.");
+                    $"Reading registers failed: Expected {registerCount * 2} bytes but received {registers.Length}.");
 
             // Instantiate the device
             var device = Activator.CreateInstance<TDevice>();
@@ -51,27 +51,9 @@ namespace SolarEdgeExporter.Modbus
                 if (attribute is not ModbusRegisterAttribute modbusRegisterAttribute)
                     continue;
 
-                int offsetBytes = modbusRegisterAttribute.RelativeRegister * 2;
-
-                // TODO: Extract methods
-
-                object value;
-                switch (attribute)
-                {
-                    case StringModbusRegisterAttribute stringModbusRegisterAttribute:
-                        value = Encoding.UTF8.GetString(data.Slice(offsetBytes, stringModbusRegisterAttribute.Length))
-                            .TrimEnd('\0', ' ');
-                        break;
-
-                    case ScaledModbusRegisterAttribute scaledModbusRegisterAttribute:
-
-                        value = 1;
-                        break;
-                    default:
-                        value = 1;
-                        break;
-                }
-
+                // Read the register value
+                var value = modbusRegisterAttribute.ReadValue(registers, property.PropertyType);
+                
                 property.SetValue(device, value);
             }
 
@@ -88,7 +70,7 @@ namespace SolarEdgeExporter.Modbus
 
             var endpoint = new IPEndPoint(address, _solarEdgeOptions.Value.Port);
 
-            _modbusClient.ReadTimeout = 5 * 1000;
+            _modbusClient.ReadTimeout = 5000;
             _modbusClient.Connect(endpoint);
         }
     }
