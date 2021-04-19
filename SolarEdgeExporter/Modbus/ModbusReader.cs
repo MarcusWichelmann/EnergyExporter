@@ -64,7 +64,7 @@ namespace SolarEdgeExporter.Modbus
         {
             _logger.LogInformation("Connecting to modbus server...");
 
-            string? addressString = _solarEdgeOptions.Value.Address;
+            string? addressString = _solarEdgeOptions.Value.Host;
             if (!IPAddress.TryParse(addressString, out IPAddress? address))
                 throw new ModbusReadException($"Invalid IP address: {addressString}");
 

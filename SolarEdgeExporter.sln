@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SolarEdgeExporter", "SolarEdgeExporter\SolarEdgeExporter.csproj", "{701E7C9F-48B4-4174-8D5A-24EF9983C8B3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeviceMappingGenerator", "DeviceMappingGenerator\DeviceMappingGenerator.csproj", "{A6EA0E9C-ACB2-4723-86F4-A8F64030B0AA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{701E7C9F-48B4-4174-8D5A-24EF9983C8B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{701E7C9F-48B4-4174-8D5A-24EF9983C8B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{701E7C9F-48B4-4174-8D5A-24EF9983C8B3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A6EA0E9C-ACB2-4723-86F4-A8F64030B0AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A6EA0E9C-ACB2-4723-86F4-A8F64030B0AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A6EA0E9C-ACB2-4723-86F4-A8F64030B0AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A6EA0E9C-ACB2-4723-86F4-A8F64030B0AA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -18,28 +18,28 @@ namespace SolarEdgeExporter.Modbus
 
         public virtual object ReadValue(Span<byte> registers, Type propertyType)
         {
-            return ReadRegisterOfType(registers[RelativeRegisterAddress..], propertyType);
+            return ReadValueByType(registers[(RelativeRegisterAddress * 2)..], propertyType);
         }
 
-        protected static object ReadRegisterOfType(Span<byte> registerSpan, Type type)
+        protected static object ReadValueByType(Span<byte> span, Type type)
         {
             if (type == typeof(ushort))
-                return BinaryPrimitives.ReadUInt16BigEndian(registerSpan);
+                return BinaryPrimitives.ReadUInt16BigEndian(span);
             if (type == typeof(short))
-                return BinaryPrimitives.ReadInt16BigEndian(registerSpan);
+                return BinaryPrimitives.ReadInt16BigEndian(span);
             if (type == typeof(uint))
-                return BinaryPrimitives.ReadUInt32BigEndian(registerSpan);
+                return BinaryPrimitives.ReadUInt32BigEndian(span);
             if (type == typeof(int))
-                return BinaryPrimitives.ReadInt32BigEndian(registerSpan);
+                return BinaryPrimitives.ReadInt32BigEndian(span);
             if (type == typeof(ulong))
-                return BinaryPrimitives.ReadUInt64BigEndian(registerSpan);
+                return BinaryPrimitives.ReadUInt64BigEndian(span);
             if (type == typeof(long))
-                return BinaryPrimitives.ReadInt64BigEndian(registerSpan);
+                return BinaryPrimitives.ReadInt64BigEndian(span);
             if (type == typeof(float))
-                return BinaryPrimitives.ReadSingleBigEndian(registerSpan);
+                return BinaryPrimitives.ReadSingleBigEndian(span);
             if (type == typeof(double))
-                return BinaryPrimitives.ReadDoubleBigEndian(registerSpan);
-            throw new ModbusReadException($"Unsupported register type: {type.Name}");
+                return BinaryPrimitives.ReadDoubleBigEndian(span);
+            throw new ModbusReadException($"Unsupported type: {type.Name}");
         }
     }
 }
