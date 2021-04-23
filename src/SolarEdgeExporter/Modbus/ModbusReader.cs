@@ -17,6 +17,7 @@ namespace SolarEdgeExporter.Modbus
     public class ModbusReader
     {
         private const byte ModbusUnit = 1;
+        private const ushort ReadChunkSize = 64;
 
         private readonly ILogger<ModbusReader> _logger;
         private readonly IOptions<SolarEdgeOptions> _solarEdgeOptions;
@@ -34,11 +35,20 @@ namespace SolarEdgeExporter.Modbus
             if (!_modbusClient.IsConnected)
                 Reconnect();
 
-            // Read registers. Each register consists of 2 bytes.
-            var registers = _modbusClient.ReadHoldingRegisters(ModbusUnit, startRegister, registerCount);
-            if (registers.Length != registerCount * 2)
-                throw new ModbusReadException(
-                    $"Reading registers failed: Expected {registerCount * 2} bytes but received {registers.Length}.");
+            // Read registers chunk by chunk. Each register consists of 2 bytes.
+            var registers = new byte[registerCount * 2];
+            ushort readCount = 0;
+            while (readCount < registerCount)
+            {
+                ushort chunkSize = Math.Min((ushort)(registerCount - readCount), ReadChunkSize);
+
+                Span<byte> chunkData = _modbusClient.ReadHoldingRegisters(ModbusUnit, (ushort)(startRegister + readCount), chunkSize);
+                if (chunkData.Length != chunkSize * 2)
+                    throw new ModbusReadException($"Reading registers chunk failed: Expected {chunkSize * 2} bytes but received {chunkData.Length}.");
+
+                chunkData.CopyTo(registers.AsSpan()[(readCount * 2)..]);
+                readCount += chunkSize;
+            }
 
             // Instantiate the device
             var device = Activator.CreateInstance<TDevice>();
@@ -51,9 +61,14 @@ namespace SolarEdgeExporter.Modbus
                 if (attribute is not ModbusRegisterAttribute modbusRegisterAttribute)
                     continue;
 
+                // Support enums
+                Type propertyType = property.PropertyType;
+                if (propertyType.IsEnum)
+                    propertyType = propertyType.GetEnumUnderlyingType();
+
                 // Read the register value
-                var value = modbusRegisterAttribute.ReadValue(registers, property.PropertyType);
-                
+                object value = modbusRegisterAttribute.ReadValue(registers, propertyType);
+
                 property.SetValue(device, value);
             }
 

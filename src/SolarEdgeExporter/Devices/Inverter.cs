@@ -3,6 +3,25 @@ using SolarEdgeExporter.Prometheus;
 
 namespace SolarEdgeExporter.Devices
 {
+    public enum InverterType : ushort
+    {
+        SinglePhase = 101,
+        SplitPhase = 102,
+        ThreePhase = 103
+    }
+
+    public enum InverterStatus : ushort
+    {
+        Off = 1,
+        Sleeping = 2,
+        Starting = 3,
+        Producing = 4,
+        Throttled = 5,
+        ShuttingDown = 6,
+        Fault = 7,
+        Standby = 8
+    }
+
     public class Inverter : IDevice
     {
         [StringModbusRegister(4, 32)]
@@ -21,72 +40,72 @@ namespace SolarEdgeExporter.Devices
         public ushort DeviceAddress { get; init; }
 
         [ModbusRegister(69)]
-        public ushort SunSpecDID { get; init; }
+        public InverterType Type { get; init; }
 
         [ScaledModbusRegister(71, typeof(ushort), 75, typeof(short))]
-        public double AC_Current { get; init; }
+        public double AcCurrent { get; init; }
 
         [ScaledModbusRegister(72, typeof(ushort), 75, typeof(short))]
-        public double AC_CurrentA { get; init; }
+        public double AcCurrentP1 { get; init; }
 
         [ScaledModbusRegister(73, typeof(ushort), 75, typeof(short))]
-        public double AC_CurrentB { get; init; }
+        public double AcCurrentP2 { get; init; }
 
         [ScaledModbusRegister(74, typeof(ushort), 75, typeof(short))]
-        public double AC_CurrentC { get; init; }
+        public double AcCurrentP3 { get; init; }
 
         [ScaledModbusRegister(76, typeof(ushort), 82, typeof(short))]
-        public double AC_VoltageAB { get; init; }
+        public double AcVoltageP1ToP2 { get; init; }
 
         [ScaledModbusRegister(77, typeof(ushort), 82, typeof(short))]
-        public double AC_VoltageBC { get; init; }
+        public double AcVoltageP2ToP3 { get; init; }
 
         [ScaledModbusRegister(78, typeof(ushort), 82, typeof(short))]
-        public double AC_VoltageCA { get; init; }
+        public double AcVoltageP3ToP1 { get; init; }
 
         [ScaledModbusRegister(79, typeof(ushort), 82, typeof(short))]
-        public double AC_VoltageAN { get; init; }
+        public double AcVoltageP1 { get; init; }
 
         [ScaledModbusRegister(80, typeof(ushort), 82, typeof(short))]
-        public double AC_VoltageBN { get; init; }
+        public double AcVoltageP2 { get; init; }
 
         [ScaledModbusRegister(81, typeof(ushort), 82, typeof(short))]
-        public double AC_VoltageCN { get; init; }
+        public double AcVoltageP3 { get; init; }
 
         [ScaledModbusRegister(83, typeof(short), 84, typeof(short))]
-        public double AC_Power { get; init; }
+        public double AcPower { get; init; }
 
         [ScaledModbusRegister(85, typeof(ushort), 86, typeof(short))]
-        public double AC_Frequency { get; init; }
+        public double AcFrequency { get; init; }
 
         [ScaledModbusRegister(87, typeof(short), 88, typeof(short))]
-        public double AC_VA { get; init; }
+        public double AcPowerApparent { get; init; }
 
         [ScaledModbusRegister(89, typeof(short), 90, typeof(short))]
-        public double AC_VAR { get; init; }
+        public double AcPowerReactive { get; init; }
 
         [ScaledModbusRegister(91, typeof(short), 92, typeof(short))]
-        public double AC_PF { get; init; }
+        public double AcPowerFactor { get; init; }
 
         [ScaledModbusRegister(93, typeof(uint), 95, typeof(ushort))]
-        public double AC_Energy_WH { get; init; }
+        public double AcTotalEnergyProduction { get; init; }
 
         [ScaledModbusRegister(96, typeof(ushort), 97, typeof(short))]
-        public double DC_Current { get; init; }
+        public double DcCurrent { get; init; }
 
         [ScaledModbusRegister(98, typeof(ushort), 99, typeof(short))]
-        public double DC_Voltage { get; init; }
+        public double DcVoltage { get; init; }
 
         [ScaledModbusRegister(100, typeof(short), 101, typeof(short))]
-        public double DC_Power { get; init; }
+        public double DcPower { get; init; }
 
         [ScaledModbusRegister(103, typeof(short), 106, typeof(short))]
-        public double Temp_Sink { get; init; }
+        public double HeatSinkTemperature { get; init; }
 
         [ModbusRegister(107)]
-        public ushort Status { get; init; }
+        public InverterStatus Status { get; init; }
 
         [ModbusRegister(108)]
-        public ushort Status_Vendor { get; init; }
+        public ushort VendorStatus { get; init; }
     }
 }

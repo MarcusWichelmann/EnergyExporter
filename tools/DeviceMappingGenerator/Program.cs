@@ -10,18 +10,17 @@ namespace DeviceMappingGenerator
     public static class Program
     {
         // A text file that contains the raw data from the tables in the SunSpec PDFs
-        private const string FileName = "InverterRegisters.txt";
+        private const string FileName = "MeterRegisters.txt";
 
         private static readonly Regex LineRegex = new Regex("^([0-9]+) [0-9]+ ([0-9]+) ([^ ]+) ([^ ]+) (.*)$");
 
         public static void Main(string[] args)
         {
             // Parse registers
-            Register[] registers = File.ReadAllLines(FileName).Where(line => !string.IsNullOrWhiteSpace(line)).Select(
-                line => {
-                    string[] values = LineRegex.Match(line).Groups.Values.Select(v => v.Value).ToArray();
-                    return new Register(int.Parse(values[1]), int.Parse(values[2]), values[3], values[4], values[5]);
-                }).ToArray();
+            Register[] registers = File.ReadAllLines(FileName).Where(line => !string.IsNullOrWhiteSpace(line)).Select(line => {
+                string[] values = LineRegex.Match(line).Groups.Values.Select(v => v.Value).ToArray();
+                return new Register(int.Parse(values[1]), int.Parse(values[2]), values[3], values[4], values[5]);
+            }).ToArray();
 
             // Find start offset
             int startOffset = registers.Min(r => r.Address);
@@ -77,7 +76,7 @@ namespace DeviceMappingGenerator
                 string registerName = register.Name;
                 if (registerName.StartsWith("C_") || registerName.StartsWith("I_") || registerName.StartsWith("M_"))
                     registerName = registerName[2..];
-                
+
                 Console.WriteLine($"public {propertyType} {registerName} {{ get; init; }}");
                 Console.WriteLine();
             }

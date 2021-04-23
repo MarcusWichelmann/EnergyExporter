@@ -17,7 +17,8 @@ namespace SolarEdgeExporter.Options
         {
             public bool Inverter { get; init; }
 
-            public bool Meter { get; init; }
+            [Range(0, 3)]
+            public int Meters { get; init; }
 
             [Range(0, 3)]
             public int Batteries { get; init; }
