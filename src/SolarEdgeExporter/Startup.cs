@@ -37,11 +37,11 @@ namespace SolarEdgeExporter
 
             // TODO Test code
             // inverter:
-            //var inverter = app.ApplicationServices.GetRequiredService<ModbusReader>().ReadDevice<Inverter>(0x9C40, 109);
+            //var inverter = app.ApplicationServices.GetRequiredService<ModbusReader>().ReadDevice<Inverter>(0x9C40);
             // meter
-            //var meter = app.ApplicationServices.GetRequiredService<ModbusReader>().ReadDevice<Meter>(0x9CB9, 174);
+            //var meter = app.ApplicationServices.GetRequiredService<ModbusReader>().ReadDevice<Meter>(0x9CB9);
             // battery:
-            var battery = app.ApplicationServices.GetRequiredService<ModbusReader>().ReadDevice<Battery>(0xE100, 158);
+            var battery = app.ApplicationServices.GetRequiredService<ModbusReader>().ReadDevice<Battery>(0xE100);
 
             app.UseRouting();
 

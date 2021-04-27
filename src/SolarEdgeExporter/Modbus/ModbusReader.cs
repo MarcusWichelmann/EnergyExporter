@@ -16,8 +16,7 @@ namespace SolarEdgeExporter.Modbus
 {
     public class ModbusReader
     {
-        private const byte ModbusUnit = 1;
-        private const ushort ReadChunkSize = 64;
+        public const byte ModbusUnit = 1;
 
         private readonly ILogger<ModbusReader> _logger;
         private readonly IOptions<SolarEdgeOptions> _solarEdgeOptions;
@@ -30,49 +29,65 @@ namespace SolarEdgeExporter.Modbus
             _solarEdgeOptions = solarEdgeOptions ?? throw new ArgumentNullException(nameof(solarEdgeOptions));
         }
 
-        public TDevice ReadDevice<TDevice>(ushort startRegister, ushort registerCount) where TDevice : IDevice
+        public TDevice ReadDevice<TDevice>(ushort startRegister) where TDevice : IDevice
         {
+            // Ensure the client is connected
             if (!_modbusClient.IsConnected)
                 Reconnect();
 
-            // Read registers chunk by chunk. Each register consists of 2 bytes.
-            var registers = new byte[registerCount * 2];
-            ushort readCount = 0;
-            while (readCount < registerCount)
+            // Create a list of all relative register addresses that need to be read
+            ushort[] relativeAddressesToRead = typeof(TDevice).GetProperties().SelectMany(prop => {
+                var attribute = Attribute.GetCustomAttribute(prop, typeof(ModbusRegisterAttribute));
+                return attribute is not ModbusRegisterAttribute modbusRegisterAttribute
+                    ? Enumerable.Empty<ushort>()
+                    : modbusRegisterAttribute.GetRelativeAddressesToRead(prop.PropertyType);
+            }).OrderBy(r => r).Distinct().ToArray();
+
+            if (relativeAddressesToRead.Length == 0)
+                throw new ModbusReadException("Could not find any register addresses to read.");
+
+            int registerCount = relativeAddressesToRead.Max() + 1;
+            Span<byte> data = new byte[registerCount * ModbusUtils.SingleRegisterSize];
+
+            try
             {
-                ushort chunkSize = Math.Min((ushort)(registerCount - readCount), ReadChunkSize);
+                // Read the required registers in as large chunks as possible
+                ushort chunkStart = relativeAddressesToRead.First();
+                ushort chunkEnd = chunkStart;
 
-                Span<byte> chunkData = _modbusClient.ReadHoldingRegisters(ModbusUnit, (ushort)(startRegister + readCount), chunkSize);
-                if (chunkData.Length != chunkSize * 2)
-                    throw new ModbusReadException($"Reading registers chunk failed: Expected {chunkSize * 2} bytes but received {chunkData.Length}.");
+                for (var i = 1; i < relativeAddressesToRead.Length; i++)
+                {
+                    ushort relativeAddress = relativeAddressesToRead[i];
 
-                chunkData.CopyTo(registers.AsSpan()[(readCount * 2)..]);
-                readCount += chunkSize;
+                    // Continue until the next gap
+                    if (chunkEnd + 1 == relativeAddress)
+                    {
+                        chunkEnd = relativeAddress;
+
+                        // Will more registers follow?
+                        if (i < relativeAddressesToRead.Length - 1)
+                            continue;
+                    }
+
+                    // Read a chunk of registers
+                    var chunkSize = (ushort)(chunkEnd - chunkStart + 1);
+                    Span<byte> chunkData = _modbusClient.ReadHoldingRegisters(ModbusUnit, (ushort)(startRegister + chunkStart), chunkSize);
+                    if (chunkData.Length != chunkSize * ModbusUtils.SingleRegisterSize)
+                        throw new ModbusReadException($"Reading registers chunk failed: Expected {chunkSize * 2} bytes but received {chunkData.Length}.");
+                    chunkData.CopyTo(data[(chunkStart * ModbusUtils.SingleRegisterSize)..]);
+
+                    // Skip the gap and read the next chunk
+                    chunkStart = chunkEnd = relativeAddress;
+                }
+            }
+            catch
+            {
+                // Make sure the connection gets reestablished after a failed read, just in case...
+                _modbusClient.Disconnect();
+                throw;
             }
 
-            // Instantiate the device
-            var device = Activator.CreateInstance<TDevice>();
-
-            // Iterate over device properties
-            IEnumerable<PropertyInfo> properties = typeof(TDevice).GetProperties();
-            foreach (var property in properties)
-            {
-                var attribute = Attribute.GetCustomAttribute(property, typeof(ModbusRegisterAttribute));
-                if (attribute is not ModbusRegisterAttribute modbusRegisterAttribute)
-                    continue;
-
-                // Support enums
-                Type propertyType = property.PropertyType;
-                if (propertyType.IsEnum)
-                    propertyType = propertyType.GetEnumUnderlyingType();
-
-                // Read the register value
-                object value = modbusRegisterAttribute.ReadValue(registers, propertyType);
-
-                property.SetValue(device, value);
-            }
-
-            return device;
+            return CreateDeviceInstance<TDevice>(data);
         }
 
         private void Reconnect()
@@ -87,6 +102,28 @@ namespace SolarEdgeExporter.Modbus
 
             _modbusClient.ReadTimeout = 5000;
             _modbusClient.Connect(endpoint);
+        }
+
+        private TDevice CreateDeviceInstance<TDevice>(ReadOnlySpan<byte> registers) where TDevice : IDevice
+        {
+            // Instantiate the device
+            var device = Activator.CreateInstance<TDevice>();
+
+            // Iterate over device properties
+            IEnumerable<PropertyInfo> properties = typeof(TDevice).GetProperties();
+            foreach (var property in properties)
+            {
+                var attribute = Attribute.GetCustomAttribute(property, typeof(ModbusRegisterAttribute));
+                if (attribute is not ModbusRegisterAttribute modbusRegisterAttribute)
+                    continue;
+
+                // Read the register value
+                object value = modbusRegisterAttribute.Read(registers, property.PropertyType);
+
+                property.SetValue(device, value);
+            }
+
+            return device;
         }
     }
 }

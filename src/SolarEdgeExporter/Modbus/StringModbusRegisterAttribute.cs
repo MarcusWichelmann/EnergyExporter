@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace SolarEdgeExporter.Modbus
@@ -13,9 +15,14 @@ namespace SolarEdgeExporter.Modbus
             Length = length;
         }
 
-        public override object ReadValue(Span<byte> registers, Type propertyType)
+        /// <inheritdoc />
+        public override IEnumerable<ushort> GetRelativeAddressesToRead(Type propertyType)
         {
-            return Encoding.UTF8.GetString(registers.Slice(RelativeRegisterAddress * 2, Length)).TrimEnd('\0', ' ');
+            int registerSize = Length / ModbusUtils.SingleRegisterSize;
+            return Enumerable.Range(RelativeRegisterAddress, registerSize).Select(i => (ushort)i);
         }
+
+        public override object Read(ReadOnlySpan<byte> data, Type propertyType)
+            => Encoding.UTF8.GetString(data.Slice(RelativeRegisterAddress * ModbusUtils.SingleRegisterSize, Length)).TrimEnd('\0', ' ');
     }
 }

@@ -88,7 +88,7 @@ namespace SolarEdgeExporter.Devices
         public double AcPowerFactor { get; init; }
 
         [ScaledModbusRegister(93, typeof(uint), 95, typeof(ushort))]
-        public double AcTotalEnergyProduction { get; init; }
+        public double AcTotalEnergyProduced { get; init; }
 
         [ScaledModbusRegister(96, typeof(ushort), 97, typeof(short))]
         public double DcCurrent { get; init; }

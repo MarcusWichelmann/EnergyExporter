@@ -1,5 +1,10 @@
 using System;
+using System.Buffers;
 using System.Buffers.Binary;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace SolarEdgeExporter.Modbus
 {
@@ -11,35 +16,24 @@ namespace SolarEdgeExporter.Modbus
     {
         public ushort RelativeRegisterAddress { get; }
 
-        public ModbusRegisterAttribute(ushort relativeRegisterAddress)
+        public RegisterEndianness Endianness { get; }
+
+        public ModbusRegisterAttribute(ushort relativeRegisterAddress, RegisterEndianness endianness = RegisterEndianness.BigEndian)
         {
+            if (!Enum.IsDefined(typeof(RegisterEndianness), endianness))
+                throw new InvalidEnumArgumentException(nameof(endianness), (int)endianness, typeof(RegisterEndianness));
+
             RelativeRegisterAddress = relativeRegisterAddress;
+            Endianness = endianness;
         }
 
-        public virtual object ReadValue(Span<byte> registers, Type propertyType)
+        public virtual IEnumerable<ushort> GetRelativeAddressesToRead(Type propertyType)
         {
-            return ReadValueByType(registers[(RelativeRegisterAddress * 2)..], propertyType);
+            int registerCount = ModbusUtils.GetValueRegisterCount(propertyType);
+            return Enumerable.Range(RelativeRegisterAddress, registerCount).Select(i => (ushort)i);
         }
 
-        protected static object ReadValueByType(Span<byte> span, Type type)
-        {
-            if (type == typeof(ushort))
-                return BinaryPrimitives.ReadUInt16BigEndian(span);
-            if (type == typeof(short))
-                return BinaryPrimitives.ReadInt16BigEndian(span);
-            if (type == typeof(uint))
-                return BinaryPrimitives.ReadUInt32BigEndian(span);
-            if (type == typeof(int))
-                return BinaryPrimitives.ReadInt32BigEndian(span);
-            if (type == typeof(ulong))
-                return BinaryPrimitives.ReadUInt64BigEndian(span);
-            if (type == typeof(long))
-                return BinaryPrimitives.ReadInt64BigEndian(span);
-            if (type == typeof(float))
-                return BinaryPrimitives.ReadSingleBigEndian(span);
-            if (type == typeof(double))
-                return BinaryPrimitives.ReadDoubleBigEndian(span);
-            throw new ModbusReadException($"Unsupported type: {type.Name}");
-        }
+        public virtual object Read(ReadOnlySpan<byte> data, Type propertyType)
+            => ModbusUtils.ReadValue(propertyType, data[(RelativeRegisterAddress * ModbusUtils.SingleRegisterSize)..], Endianness);
     }
 }

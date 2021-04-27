@@ -27,64 +27,64 @@ namespace SolarEdgeExporter.Devices
         [StringModbusRegister(48, 32)]
         public string? SerialNumber { get; init; }
 
-        [ModbusRegister(64)]
+        [ModbusRegister(64, RegisterEndianness.MidLittleEndian)]
         public ushort DeviceAddress { get; init; }
 
-        [ModbusRegister(66)]
+        [ModbusRegister(66, RegisterEndianness.MidLittleEndian)]
         public float RatedCapacity { get; init; }
 
-        [ModbusRegister(68)]
+        [ModbusRegister(68, RegisterEndianness.MidLittleEndian)]
         public float MaxChargeContinuousPower { get; init; }
 
-        [ModbusRegister(70)]
+        [ModbusRegister(70, RegisterEndianness.MidLittleEndian)]
         public float MaxDischargeContinuousPower { get; init; }
 
-        [ModbusRegister(72)]
+        [ModbusRegister(72, RegisterEndianness.MidLittleEndian)]
         public float MaxChargePeakPower { get; init; }
 
-        [ModbusRegister(74)]
+        [ModbusRegister(74, RegisterEndianness.MidLittleEndian)]
         public float MaxDischargePeakPower { get; init; }
 
-        [ModbusRegister(108)]
+        [ModbusRegister(108, RegisterEndianness.MidLittleEndian)]
         public float AvgTemperature { get; init; }
 
-        [ModbusRegister(110)]
+        [ModbusRegister(110, RegisterEndianness.MidLittleEndian)]
         public float MaxTemperature { get; init; }
 
-        [ModbusRegister(112)]
+        [ModbusRegister(112, RegisterEndianness.MidLittleEndian)]
         public float Voltage { get; init; }
 
-        [ModbusRegister(114)]
+        [ModbusRegister(114, RegisterEndianness.MidLittleEndian)]
         public float Current { get; init; }
 
-        [ModbusRegister(116)]
+        [ModbusRegister(116, RegisterEndianness.MidLittleEndian)]
         public float Power { get; init; }
 
-        [ModbusRegister(118)]
-        public ulong TotalExportedEnergy { get; init; }
+        [ModbusRegister(118, RegisterEndianness.MidLittleEndian)]
+        public ulong LifetimeExportedEnergy { get; init; }
 
-        [ModbusRegister(122)]
-        public ulong TotalImportedEnergy { get; init; }
+        [ModbusRegister(122, RegisterEndianness.MidLittleEndian)]
+        public ulong LifetimeImportedEnergy { get; init; }
 
-        [ModbusRegister(126)]
+        [ModbusRegister(126, RegisterEndianness.MidLittleEndian)]
         public float BatteryCapacity { get; init; }
 
-        [ModbusRegister(128)]
+        [ModbusRegister(128, RegisterEndianness.MidLittleEndian)]
         public float BatteryCharge { get; init; }
 
-        [ModbusRegister(130)]
+        [ModbusRegister(130, RegisterEndianness.MidLittleEndian)]
         public float BatteryCapacityPercent { get; init; }
 
-        [ModbusRegister(132)]
+        [ModbusRegister(132, RegisterEndianness.MidLittleEndian)]
         public float BatteryChargePercent { get; init; }
 
-        [ModbusRegister(134)]
+        [ModbusRegister(134, RegisterEndianness.MidLittleEndian)]
         public BatteryStatus Status { get; init; }
 
-        [ModbusRegister(136)]
+        [ModbusRegister(136, RegisterEndianness.MidLittleEndian)]
         public uint VendorStatus { get; init; }
 
-        [ModbusRegister(138)]
+        [ModbusRegister(138, RegisterEndianness.MidLittleEndian)]
         public ushort LastEvent { get; init; }
     }
 }
