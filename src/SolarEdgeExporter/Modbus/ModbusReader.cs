@@ -29,7 +29,7 @@ namespace SolarEdgeExporter.Modbus
             _solarEdgeOptions = solarEdgeOptions ?? throw new ArgumentNullException(nameof(solarEdgeOptions));
         }
 
-        public TDevice ReadDevice<TDevice>(ushort startRegister) where TDevice : IDevice
+        public async Task<TDevice> ReadDeviceAsync<TDevice>(ushort startRegister) where TDevice : IDevice
         {
             // Ensure the client is connected
             if (!_modbusClient.IsConnected)
@@ -47,7 +47,7 @@ namespace SolarEdgeExporter.Modbus
                 throw new ModbusReadException("Could not find any register addresses to read.");
 
             int registerCount = relativeAddressesToRead.Max() + 1;
-            Span<byte> data = new byte[registerCount * ModbusUtils.SingleRegisterSize];
+            Memory<byte> data = new byte[registerCount * ModbusUtils.SingleRegisterSize];
 
             try
             {
@@ -71,7 +71,7 @@ namespace SolarEdgeExporter.Modbus
 
                     // Read a chunk of registers
                     var chunkSize = (ushort)(chunkEnd - chunkStart + 1);
-                    Span<byte> chunkData = _modbusClient.ReadHoldingRegisters(ModbusUnit, (ushort)(startRegister + chunkStart), chunkSize);
+                    Memory<byte> chunkData = await _modbusClient.ReadHoldingRegistersAsync(ModbusUnit, (ushort)(startRegister + chunkStart), chunkSize);
                     if (chunkData.Length != chunkSize * ModbusUtils.SingleRegisterSize)
                         throw new ModbusReadException($"Reading registers chunk failed: Expected {chunkSize * 2} bytes but received {chunkData.Length}.");
                     chunkData.CopyTo(data[(chunkStart * ModbusUtils.SingleRegisterSize)..]);
@@ -87,7 +87,7 @@ namespace SolarEdgeExporter.Modbus
                 throw;
             }
 
-            return CreateDeviceInstance<TDevice>(data);
+            return CreateDeviceInstance<TDevice>(data.Span);
         }
 
         private void Reconnect()
