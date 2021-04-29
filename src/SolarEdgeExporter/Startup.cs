@@ -6,6 +6,7 @@ using Microsoft.Extensions.Hosting;
 using SolarEdgeExporter.Devices;
 using SolarEdgeExporter.Modbus;
 using SolarEdgeExporter.Options;
+using SolarEdgeExporter.Services;
 
 namespace SolarEdgeExporter
 {
@@ -21,11 +22,14 @@ namespace SolarEdgeExporter
         public void ConfigureServices(IServiceCollection services)
         {
             // Register options
-            services.AddOptions<SolarEdgeOptions>().Bind(Configuration.GetSection("SolarEdge"))
-                .ValidateDataAnnotations();
+            services.AddOptions<ModbusOptions>().Bind(Configuration.GetSection("Modbus")).ValidateDataAnnotations();
+            services.AddOptions<DevicesOptions>().Bind(Configuration.GetSection("Devices")).ValidateDataAnnotations();
+            services.AddOptions<PollingOptions>().Bind(Configuration.GetSection("Polling")).ValidateDataAnnotations();
 
             // Register services
             services.AddSingleton<ModbusReader>();
+            services.AddSingleton<DeviceService>();
+            services.AddHostedService<DevicePollingService>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -41,7 +45,7 @@ namespace SolarEdgeExporter
             // meter
             //var meter = app.ApplicationServices.GetRequiredService<ModbusReader>().ReadDevice<Meter>(0x9CB9);
             // battery:
-            var battery = app.ApplicationServices.GetRequiredService<ModbusReader>().ReadDevice<Battery>(0xE100);
+            //var battery = app.ApplicationServices.GetRequiredService<ModbusReader>().ReadDeviceAsync<Battery>(0xE100).Result;
 
             app.UseRouting();
 

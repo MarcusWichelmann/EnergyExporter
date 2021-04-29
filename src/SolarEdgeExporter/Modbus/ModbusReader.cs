@@ -19,14 +19,14 @@ namespace SolarEdgeExporter.Modbus
         public const byte ModbusUnit = 1;
 
         private readonly ILogger<ModbusReader> _logger;
-        private readonly IOptions<SolarEdgeOptions> _solarEdgeOptions;
+        private readonly IOptions<ModbusOptions> _modbusOptions;
 
         private readonly ModbusTcpClient _modbusClient = new();
 
-        public ModbusReader(ILogger<ModbusReader> logger, IOptions<SolarEdgeOptions> solarEdgeOptions)
+        public ModbusReader(ILogger<ModbusReader> logger, IOptions<ModbusOptions> modbusOptions)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _solarEdgeOptions = solarEdgeOptions ?? throw new ArgumentNullException(nameof(solarEdgeOptions));
+            _modbusOptions = modbusOptions ?? throw new ArgumentNullException(nameof(modbusOptions));
         }
 
         public async Task<TDevice> ReadDeviceAsync<TDevice>(ushort startRegister) where TDevice : IDevice
@@ -34,6 +34,8 @@ namespace SolarEdgeExporter.Modbus
             // Ensure the client is connected
             if (!_modbusClient.IsConnected)
                 Reconnect();
+
+            _logger.LogDebug($"Reading {typeof(TDevice).Name} at address 0x{startRegister:X4}...");
 
             // Create a list of all relative register addresses that need to be read
             ushort[] relativeAddressesToRead = typeof(TDevice).GetProperties().SelectMany(prop => {
@@ -94,11 +96,11 @@ namespace SolarEdgeExporter.Modbus
         {
             _logger.LogInformation("Connecting to modbus server...");
 
-            string? addressString = _solarEdgeOptions.Value.Host;
+            string? addressString = _modbusOptions.Value.Host;
             if (!IPAddress.TryParse(addressString, out IPAddress? address))
                 throw new ModbusReadException($"Invalid IP address: {addressString}");
 
-            var endpoint = new IPEndPoint(address, _solarEdgeOptions.Value.Port);
+            var endpoint = new IPEndPoint(address, _modbusOptions.Value.Port);
 
             _modbusClient.ReadTimeout = 5000;
             _modbusClient.Connect(endpoint);
