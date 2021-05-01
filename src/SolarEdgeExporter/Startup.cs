@@ -1,8 +1,10 @@
+using Hellang.Middleware.ProblemDetails;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.OpenApi.Models;
 using SolarEdgeExporter.Devices;
 using SolarEdgeExporter.Modbus;
 using SolarEdgeExporter.Options;
@@ -26,6 +28,13 @@ namespace SolarEdgeExporter
             services.AddOptions<DevicesOptions>().Bind(Configuration.GetSection("Devices")).ValidateDataAnnotations();
             services.AddOptions<PollingOptions>().Bind(Configuration.GetSection("Polling")).ValidateDataAnnotations();
 
+            // Add API support
+            services.AddControllers();
+            services.AddProblemDetails();
+            services.AddSwaggerGen(options => {
+                options.SwaggerDoc("v1", new OpenApiInfo { Title = "SolarEdge Exporter", Version = "v1" });
+            });
+
             // Register services
             services.AddSingleton<ModbusReader>();
             services.AddSingleton<DeviceService>();
@@ -34,23 +43,15 @@ namespace SolarEdgeExporter
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
+            app.UseProblemDetails();
 
-            // TODO Test code
-            // inverter:
-            //var inverter = app.ApplicationServices.GetRequiredService<ModbusReader>().ReadDevice<Inverter>(0x9C40);
-            // meter
-            //var meter = app.ApplicationServices.GetRequiredService<ModbusReader>().ReadDevice<Meter>(0x9CB9);
-            // battery:
-            //var battery = app.ApplicationServices.GetRequiredService<ModbusReader>().ReadDeviceAsync<Battery>(0xE100).Result;
+            app.UseSwagger();
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "SolarEdge Exporter v1"));
 
             app.UseRouting();
 
             app.UseEndpoints(endpoints => {
-                // TODO
+                endpoints.MapControllers();
             });
         }
     }

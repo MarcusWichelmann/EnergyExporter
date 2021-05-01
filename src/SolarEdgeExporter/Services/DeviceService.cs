@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SolarEdgeExporter.Devices;
 using SolarEdgeExporter.Modbus;
@@ -12,17 +12,19 @@ namespace SolarEdgeExporter.Services
 {
     public class DeviceService
     {
-        private readonly ILogger<DeviceService> _logger;
         private readonly ModbusReader _modbusReader;
         private readonly IOptions<DevicesOptions> _devicesOptions;
 
-        public IReadOnlyCollection<Inverter> Inverters { get; private set; }
-        public IReadOnlyCollection<Meter> Meters { get; private set; }
-        public IReadOnlyCollection<Battery> Batteries { get; private set; }
+        private volatile IImmutableList<Inverter> _inverters = ImmutableList<Inverter>.Empty;
+        private volatile IImmutableList<Meter> _meters = ImmutableList<Meter>.Empty;
+        private volatile IImmutableList<Battery> _batteries = ImmutableList<Battery>.Empty;
 
-        public DeviceService(ILogger<DeviceService> logger, ModbusReader modbusReader, IOptions<DevicesOptions> devicesOptions)
+        public IImmutableList<Inverter> Inverters => _inverters;
+        public IImmutableList<Meter> Meters => _meters;
+        public IImmutableList<Battery> Batteries => _batteries;
+
+        public DeviceService(ModbusReader modbusReader, IOptions<DevicesOptions> devicesOptions)
         {
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _modbusReader = modbusReader ?? throw new ArgumentNullException(nameof(modbusReader));
             _devicesOptions = devicesOptions ?? throw new ArgumentNullException(nameof(devicesOptions));
         }
@@ -31,20 +33,20 @@ namespace SolarEdgeExporter.Services
         {
             DevicesOptions deviceCounts = _devicesOptions.Value;
 
-            var inverters = new List<Inverter>();
-            var meters = new List<Meter>();
-            var batteries = new List<Battery>();
-
+            ImmutableList<Inverter>.Builder inverters = ImmutableList.CreateBuilder<Inverter>();
             foreach (ushort address in DeviceAddresses.Inverters.Take(deviceCounts.Inverters))
                 inverters.Add(await _modbusReader.ReadDeviceAsync<Inverter>(address));
+            _inverters = inverters.ToImmutable();
+
+            ImmutableList<Meter>.Builder meters = ImmutableList.CreateBuilder<Meter>();
             foreach (ushort address in DeviceAddresses.Meters.Take(deviceCounts.Meters))
                 meters.Add(await _modbusReader.ReadDeviceAsync<Meter>(address));
+            _meters = meters.ToImmutable();
+
+            ImmutableList<Battery>.Builder batteries = ImmutableList.CreateBuilder<Battery>();
             foreach (ushort address in DeviceAddresses.Batteries.Take(deviceCounts.Batteries))
                 batteries.Add(await _modbusReader.ReadDeviceAsync<Battery>(address));
-
-            Inverters = inverters.AsReadOnly();
-            Meters = meters.AsReadOnly();
-            Batteries = batteries.AsReadOnly();
+            _batteries = batteries.ToImmutable();
         }
     }
 }
