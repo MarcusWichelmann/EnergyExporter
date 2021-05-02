@@ -1,11 +1,10 @@
 using Hellang.Middleware.ProblemDetails;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using SolarEdgeExporter.Devices;
 using SolarEdgeExporter.Modbus;
 using SolarEdgeExporter.Options;
 using SolarEdgeExporter.Services;
@@ -29,7 +28,7 @@ namespace SolarEdgeExporter
             services.AddOptions<PollingOptions>().Bind(Configuration.GetSection("Polling")).ValidateDataAnnotations();
 
             // Add API support
-            services.AddControllers();
+            services.AddControllers().AddXmlSerializerFormatters();
             services.AddProblemDetails();
             services.AddSwaggerGen(options => {
                 options.SwaggerDoc("v1", new OpenApiInfo { Title = "SolarEdge Exporter", Version = "v1" });
@@ -51,6 +50,7 @@ namespace SolarEdgeExporter
             app.UseRouting();
 
             app.UseEndpoints(endpoints => {
+                endpoints.MapGet("/", context => context.Response.WriteAsync("SolarEdge Exporter"));
                 endpoints.MapControllers();
             });
         }

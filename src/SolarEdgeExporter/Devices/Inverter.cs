@@ -1,5 +1,4 @@
 using SolarEdgeExporter.Modbus;
-using SolarEdgeExporter.Prometheus;
 
 namespace SolarEdgeExporter.Devices
 {
