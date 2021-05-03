@@ -102,6 +102,8 @@ namespace SolarEdgeExporter.Modbus
 
             _modbusClient.ReadTimeout = 5000;
             _modbusClient.Connect(endpoint);
+
+            _logger.LogInformation("Modbus connected.");
         }
 
         private TDevice CreateDeviceInstance<TDevice>(ReadOnlySpan<byte> registers) where TDevice : IDevice
