@@ -22,21 +22,18 @@ namespace SolarEdgeExporter.Controllers
         public IEnumerable<Inverter> GetInverters() => _deviceService.Inverters;
 
         [HttpGet("inverters/{index:int}")]
-        public ActionResult<Inverter> GetInverter(int index)
-            => _deviceService.Inverters.ElementAtOrDefault(index) ?? (ActionResult<Inverter>)NotFound();
+        public ActionResult<Inverter> GetInverter(int index) => _deviceService.Inverters.ElementAtOrDefault(index) ?? (ActionResult<Inverter>)NotFound();
 
         [HttpGet("meters")]
         public IEnumerable<Meter> GetMeters() => _deviceService.Meters;
 
         [HttpGet("meters/{index:int}")]
-        public ActionResult<Meter> GetMeter(int index)
-            => _deviceService.Meters.ElementAtOrDefault(index) ?? (ActionResult<Meter>)NotFound();
+        public ActionResult<Meter> GetMeter(int index) => _deviceService.Meters.ElementAtOrDefault(index) ?? (ActionResult<Meter>)NotFound();
 
         [HttpGet("batteries")]
         public IEnumerable<Battery> GetBatteries() => _deviceService.Batteries;
 
         [HttpGet("batteries/{index:int}")]
-        public ActionResult<Battery> GetBatteries(int index)
-            => _deviceService.Batteries.ElementAtOrDefault(index) ?? (ActionResult<Battery>)NotFound();
+        public ActionResult<Battery> GetBatteries(int index) => _deviceService.Batteries.ElementAtOrDefault(index) ?? (ActionResult<Battery>)NotFound();
     }
 }

@@ -23,12 +23,15 @@ namespace SolarEdgeExporter
         public void ConfigureServices(IServiceCollection services)
         {
             // Register options
-            services.AddOptions<ModbusOptions>().Bind(Configuration.GetSection("Modbus")).ValidateDataAnnotations();
-            services.AddOptions<DevicesOptions>().Bind(Configuration.GetSection("Devices")).ValidateDataAnnotations();
-            services.AddOptions<PollingOptions>().Bind(Configuration.GetSection("Polling")).ValidateDataAnnotations();
+            services.AddOptions<ModbusOptions>().Bind(Configuration.GetSection(ModbusOptions.Key)).ValidateDataAnnotations();
+            services.AddOptions<DevicesOptions>().Bind(Configuration.GetSection(DevicesOptions.Key)).ValidateDataAnnotations();
+            services.AddOptions<PollingOptions>().Bind(Configuration.GetSection(PollingOptions.Key)).ValidateDataAnnotations();
+            services.AddOptions<ExportOptions>().Bind(Configuration.GetSection(ExportOptions.Key)).ValidateDataAnnotations();
+
+            var indentJson = Configuration.GetValue<bool>($"{ExportOptions.Key}:{nameof(ExportOptions.IndentedJson)}");
 
             // Add API support
-            services.AddControllers().AddXmlSerializerFormatters();
+            services.AddControllers().AddXmlSerializerFormatters().AddJsonOptions(options => options.JsonSerializerOptions.WriteIndented = indentJson);
             services.AddProblemDetails();
             services.AddSwaggerGen(options => {
                 options.SwaggerDoc("v1", new OpenApiInfo { Title = "SolarEdge Exporter", Version = "v1" });

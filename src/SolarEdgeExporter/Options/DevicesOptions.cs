@@ -4,6 +4,8 @@ namespace SolarEdgeExporter.Options
 {
     public class DevicesOptions
     {
+        public const string Key = "Devices";
+
         [Range(0, 1)]
         public int Inverters { get; init; }
 
