@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Hellang.Middleware.ProblemDetails;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -7,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using SolarEdgeExporter.Modbus;
 using SolarEdgeExporter.Options;
+using SolarEdgeExporter.Prometheus;
 using SolarEdgeExporter.Services;
 
 namespace SolarEdgeExporter
@@ -31,7 +33,10 @@ namespace SolarEdgeExporter
             var indentJson = Configuration.GetValue<bool>($"{ExportOptions.Key}:{nameof(ExportOptions.IndentedJson)}");
 
             // Add API support
-            services.AddControllers().AddXmlSerializerFormatters().AddJsonOptions(options => options.JsonSerializerOptions.WriteIndented = indentJson);
+            services.AddControllers().AddXmlSerializerFormatters().AddJsonOptions(options => {
+                options.JsonSerializerOptions.WriteIndented = indentJson;
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            });
             services.AddProblemDetails();
             services.AddSwaggerGen(options => {
                 options.SwaggerDoc("v1", new OpenApiInfo { Title = "SolarEdge Exporter", Version = "v1" });
@@ -39,6 +44,7 @@ namespace SolarEdgeExporter
 
             // Register services
             services.AddSingleton<ModbusReader>();
+            services.AddSingleton<PrometheusSerializer>();
             services.AddSingleton<DeviceService>();
             services.AddHostedService<DevicePollingService>();
         }

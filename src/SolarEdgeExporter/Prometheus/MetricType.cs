@@ -1,10 +1,23 @@
+using System;
+using System.ComponentModel;
+
 namespace SolarEdgeExporter.Prometheus
 {
     public enum MetricType
     {
         Counter,
-        Gauge,
-        Summary,
-        Histogram
+        Gauge
+    }
+
+    public static class MetricTypeExtensions
+    {
+        public static string ToTypeName(this MetricType metricType)
+        {
+            return metricType switch {
+                MetricType.Counter => "counter",
+                MetricType.Gauge   => "gauge",
+                var _              => throw new ArgumentOutOfRangeException(nameof(metricType), metricType, null)
+            };
+        }
     }
 }
