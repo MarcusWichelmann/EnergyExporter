@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 
 namespace SolarEdgeExporter.Prometheus
 {
@@ -35,7 +36,7 @@ namespace SolarEdgeExporter.Prometheus
             if (string.IsNullOrWhiteSpace(deviceName))
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(deviceName));
 
-            return $"{Name}{{{deviceName}=\"{deviceId}\"}} {propertyValue}";
+            return $"{Name}{{{deviceName}=\"{deviceId}\"}} {propertyValue.ToString(CultureInfo.InvariantCulture)}";
         }
     }
 }

@@ -1,4 +1,5 @@
 using SolarEdgeExporter.Modbus;
+using SolarEdgeExporter.Prometheus;
 
 namespace SolarEdgeExporter.Devices
 {
@@ -42,69 +43,95 @@ namespace SolarEdgeExporter.Devices
         public InverterType Type { get; init; }
 
         [ScaledModbusRegister(71, typeof(ushort), 75, typeof(short))]
+        [PrometheusMetric(MetricType.Gauge, "solaredge_inverter_ac_current", "AC current")]
         public double AcCurrent { get; init; }
 
         [ScaledModbusRegister(72, typeof(ushort), 75, typeof(short))]
+        [PrometheusMetric(MetricType.Gauge, "solaredge_inverter_ac_current_p1", "AC current on phase 1")]
         public double AcCurrentP1 { get; init; }
 
         [ScaledModbusRegister(73, typeof(ushort), 75, typeof(short))]
+        [PrometheusMetric(MetricType.Gauge, "solaredge_inverter_ac_current_p2", "AC current on phase 2")]
         public double AcCurrentP2 { get; init; }
 
         [ScaledModbusRegister(74, typeof(ushort), 75, typeof(short))]
+        [PrometheusMetric(MetricType.Gauge, "solaredge_inverter_ac_current_p3", "AC current on phase 3")]
         public double AcCurrentP3 { get; init; }
 
         [ScaledModbusRegister(76, typeof(ushort), 82, typeof(short))]
+        [PrometheusMetric(MetricType.Gauge, "solaredge_inverter_ac_voltage_p1_to_p2",
+            "AC voltage between phase 1 and 2")]
         public double AcVoltageP1ToP2 { get; init; }
 
         [ScaledModbusRegister(77, typeof(ushort), 82, typeof(short))]
+        [PrometheusMetric(MetricType.Gauge, "solaredge_inverter_ac_voltage_p2_to_p3",
+            "AC voltage between phase 2 and 3")]
         public double AcVoltageP2ToP3 { get; init; }
 
         [ScaledModbusRegister(78, typeof(ushort), 82, typeof(short))]
+        [PrometheusMetric(MetricType.Gauge, "solaredge_inverter_ac_voltage_p3_to_p1",
+            "AC voltage between phase 3 and 1")]
         public double AcVoltageP3ToP1 { get; init; }
 
         [ScaledModbusRegister(79, typeof(ushort), 82, typeof(short))]
+        [PrometheusMetric(MetricType.Gauge, "solaredge_inverter_ac_voltage_p1", "AC voltage between phase 1 and N")]
         public double AcVoltageP1 { get; init; }
 
         [ScaledModbusRegister(80, typeof(ushort), 82, typeof(short))]
+        [PrometheusMetric(MetricType.Gauge, "solaredge_inverter_ac_voltage_p2", "AC voltage between phase 2 and N")]
         public double AcVoltageP2 { get; init; }
 
         [ScaledModbusRegister(81, typeof(ushort), 82, typeof(short))]
+        [PrometheusMetric(MetricType.Gauge, "solaredge_inverter_ac_voltage_p3", "AC voltage between phase 3 and N")]
         public double AcVoltageP3 { get; init; }
 
         [ScaledModbusRegister(83, typeof(short), 84, typeof(short))]
+        [PrometheusMetric(MetricType.Gauge, "solaredge_inverter_ac_power", "AC power")]
         public double AcPower { get; init; }
 
         [ScaledModbusRegister(85, typeof(ushort), 86, typeof(short))]
+        [PrometheusMetric(MetricType.Gauge, "solaredge_inverter_ac_frequency", "AC frequency")]
         public double AcFrequency { get; init; }
 
         [ScaledModbusRegister(87, typeof(short), 88, typeof(short))]
+        [PrometheusMetric(MetricType.Gauge, "solaredge_inverter_ac_power_apparent", "AC power apparent")]
         public double AcPowerApparent { get; init; }
 
         [ScaledModbusRegister(89, typeof(short), 90, typeof(short))]
+        [PrometheusMetric(MetricType.Gauge, "solaredge_inverter_ac_power_reactive", "AC power reactive")]
         public double AcPowerReactive { get; init; }
 
         [ScaledModbusRegister(91, typeof(short), 92, typeof(short))]
+        [PrometheusMetric(MetricType.Gauge, "solaredge_inverter_ac_power_factor", "AC power factor")]
         public double AcPowerFactor { get; init; }
 
         [ScaledModbusRegister(93, typeof(uint), 95, typeof(ushort))]
+        [PrometheusMetric(MetricType.Counter, "solaredge_inverter_ac_total_energy_produced",
+            "AC total energy produced")]
         public double AcTotalEnergyProduced { get; init; }
 
         [ScaledModbusRegister(96, typeof(ushort), 97, typeof(short))]
+        [PrometheusMetric(MetricType.Gauge, "solaredge_inverter_dc_current", "DC current")]
         public double DcCurrent { get; init; }
 
         [ScaledModbusRegister(98, typeof(ushort), 99, typeof(short))]
+        [PrometheusMetric(MetricType.Gauge, "solaredge_inverter_dc_voltage", "DC voltage")]
         public double DcVoltage { get; init; }
 
         [ScaledModbusRegister(100, typeof(short), 101, typeof(short))]
+        [PrometheusMetric(MetricType.Gauge, "solaredge_inverter_dc_power", "DC power")]
         public double DcPower { get; init; }
 
         [ScaledModbusRegister(103, typeof(short), 106, typeof(short))]
+        [PrometheusMetric(MetricType.Gauge, "solaredge_inverter_heat_sink_temperature", "Heat sink temperature")]
         public double HeatSinkTemperature { get; init; }
 
         [ModbusRegister(107)]
+        [PrometheusMetric(MetricType.Gauge, "solaredge_inverter_status", "Status")]
         public InverterStatus Status { get; init; }
 
         [ModbusRegister(108)]
+        [PrometheusMetric(MetricType.Gauge, "solaredge_inverter_vendor_status", "Vendor status")]
         public ushort VendorStatus { get; init; }
     }
 }

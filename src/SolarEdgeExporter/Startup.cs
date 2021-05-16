@@ -25,10 +25,14 @@ namespace SolarEdgeExporter
         public void ConfigureServices(IServiceCollection services)
         {
             // Register options
-            services.AddOptions<ModbusOptions>().Bind(Configuration.GetSection(ModbusOptions.Key)).ValidateDataAnnotations();
-            services.AddOptions<DevicesOptions>().Bind(Configuration.GetSection(DevicesOptions.Key)).ValidateDataAnnotations();
-            services.AddOptions<PollingOptions>().Bind(Configuration.GetSection(PollingOptions.Key)).ValidateDataAnnotations();
-            services.AddOptions<ExportOptions>().Bind(Configuration.GetSection(ExportOptions.Key)).ValidateDataAnnotations();
+            services.AddOptions<ModbusOptions>().Bind(Configuration.GetSection(ModbusOptions.Key))
+                .ValidateDataAnnotations();
+            services.AddOptions<DevicesOptions>().Bind(Configuration.GetSection(DevicesOptions.Key))
+                .ValidateDataAnnotations();
+            services.AddOptions<PollingOptions>().Bind(Configuration.GetSection(PollingOptions.Key))
+                .ValidateDataAnnotations();
+            services.AddOptions<ExportOptions>().Bind(Configuration.GetSection(ExportOptions.Key))
+                .ValidateDataAnnotations();
 
             var indentJson = Configuration.GetValue<bool>($"{ExportOptions.Key}:{nameof(ExportOptions.IndentedJson)}");
 
@@ -44,12 +48,12 @@ namespace SolarEdgeExporter
 
             // Register services
             services.AddSingleton<ModbusReader>();
-            services.AddSingleton<PrometheusSerializer>();
+            services.AddSingleton<MetricsWriter>();
             services.AddSingleton<DeviceService>();
             services.AddHostedService<DevicePollingService>();
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, MetricsWriter metricsWriter)
         {
             app.UseProblemDetails();
 
@@ -59,8 +63,17 @@ namespace SolarEdgeExporter
             app.UseRouting();
 
             app.UseEndpoints(endpoints => {
+                // Info text
                 endpoints.MapGet("/", context => context.Response.WriteAsync("SolarEdge Exporter"));
+
+                // API routes
                 endpoints.MapControllers();
+
+                // Metrics endpoint
+                endpoints.MapGet("/metrics", context => {
+                    context.Response.ContentType = "text/plain";
+                    return metricsWriter.WriteToStreamAsync(context.Response.Body);
+                });
             });
         }
     }
