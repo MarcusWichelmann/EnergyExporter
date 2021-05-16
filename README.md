@@ -6,6 +6,11 @@
 
 Collects the data of a SolarEdge installation over Modbus TCP and exports it as JSON, XML and Prometheus-Metrics.
 
+It implements the Sunspec protocol and supports the following devices:
+- Inverters
+- Energy meters
+- Batteries (StorEdge, BYD, ...)
+
 ## Usage
 
 ### Enable Modbus TCP
