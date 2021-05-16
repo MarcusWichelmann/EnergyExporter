@@ -16,7 +16,8 @@ namespace SolarEdgeExporter.Services
 
         private Timer? _timer;
 
-        public DevicePollingService(ILogger<DevicePollingService> logger, DeviceService deviceService, IOptions<PollingOptions> pollingOptions)
+        public DevicePollingService(ILogger<DevicePollingService> logger, DeviceService deviceService,
+            IOptions<PollingOptions> pollingOptions)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _deviceService = deviceService ?? throw new ArgumentNullException(nameof(deviceService));
@@ -53,7 +54,7 @@ namespace SolarEdgeExporter.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Reading devices failed.");
+                _logger.LogError(ex, "Polling failed.");
             }
         }
 
