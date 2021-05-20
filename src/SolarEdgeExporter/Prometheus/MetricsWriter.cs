@@ -27,7 +27,7 @@ namespace SolarEdgeExporter.Prometheus
 
         public async Task WriteToStreamAsync(Stream stream)
         {
-            await using var streamWriter = new StreamWriter(stream, Encoding.UTF8, -1, true);
+            await using var streamWriter = new StreamWriter(stream, new UTF8Encoding(false), -1, true);
 
             static IEnumerable<MetricsEntry> GetDeviceMetrics(IDevice device, int index)
                 =>
