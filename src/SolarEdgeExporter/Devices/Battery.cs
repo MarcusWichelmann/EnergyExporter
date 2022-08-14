@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using SolarEdgeExporter.Modbus;
 using SolarEdgeExporter.Prometheus;
 
@@ -16,6 +17,10 @@ namespace SolarEdgeExporter.Devices
 
     public class Battery : IDevice
     {
+        /// <inheritdoc />
+        [JsonIgnore]
+        public string DeviceIdentifier => SerialNumber!;
+
         [StringModbusRegister(0, 32)]
         public string? Manufacturer { get; init; }
 
@@ -36,13 +41,11 @@ namespace SolarEdgeExporter.Devices
         public float RatedCapacity { get; init; }
 
         [ModbusRegister(68, RegisterEndianness.MidLittleEndian)]
-        [PrometheusMetric(MetricType.Gauge, "solaredge_battery_max_charge_continuous_power",
-            "Max charge continuous power")]
+        [PrometheusMetric(MetricType.Gauge, "solaredge_battery_max_charge_continuous_power", "Max charge continuous power")]
         public float MaxChargeContinuousPower { get; init; }
 
         [ModbusRegister(70, RegisterEndianness.MidLittleEndian)]
-        [PrometheusMetric(MetricType.Gauge, "solaredge_battery_max_discharge_continuous_power",
-            "Max discharge continuous power")]
+        [PrometheusMetric(MetricType.Gauge, "solaredge_battery_max_discharge_continuous_power", "Max discharge continuous power")]
         public float MaxDischargeContinuousPower { get; init; }
 
         [ModbusRegister(72, RegisterEndianness.MidLittleEndian)]

@@ -31,12 +31,12 @@ namespace SolarEdgeExporter.Prometheus
 
         public string GetTypeLine() => $"# TYPE {Name} {Type.ToTypeName()}";
 
-        public string GetSampleLine(string deviceName, int deviceId, double propertyValue)
+        public string GetSampleLine(string deviceIdentifier, double propertyValue)
         {
-            if (string.IsNullOrWhiteSpace(deviceName))
-                throw new ArgumentException("Value cannot be null or whitespace.", nameof(deviceName));
+            if (string.IsNullOrWhiteSpace(deviceIdentifier))
+                throw new ArgumentException("Value cannot be null or whitespace.", nameof(deviceIdentifier));
 
-            return $"{Name}{{{deviceName}=\"{deviceId}\"}} {propertyValue.ToString(CultureInfo.InvariantCulture)}";
+            return $"{Name}{{device=\"{deviceIdentifier}\"}} {propertyValue.ToString(CultureInfo.InvariantCulture)}";
         }
     }
 }

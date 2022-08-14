@@ -24,15 +24,16 @@ namespace SolarEdgeExporter.Services
             _pollingOptions = pollingOptions ?? throw new ArgumentNullException(nameof(pollingOptions));
         }
 
-        public Task StartAsync(CancellationToken cancellationToken)
+        public async Task StartAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation("Starting device polling...");
+
+            // Do an initial update
+            await PollDevicesAsync();
 
             // Start the timer
             TimeSpan interval = TimeSpan.FromSeconds(_pollingOptions.Value.IntervalSeconds);
             _timer = new Timer(OnTimerTick, null, interval, interval);
-
-            return Task.CompletedTask;
         }
 
         public Task StopAsync(CancellationToken cancellationToken)
@@ -45,12 +46,14 @@ namespace SolarEdgeExporter.Services
             return Task.CompletedTask;
         }
 
-        private async void OnTimerTick(object? state)
+        private async void OnTimerTick(object? state) => await PollDevicesAsync();
+
+        private async Task PollDevicesAsync()
         {
             _logger.LogDebug("Polling devices...");
             try
             {
-                await _deviceService.ReadDevicesAsync();
+                await _deviceService.QueryDevicesAsync();
             }
             catch (Exception ex)
             {

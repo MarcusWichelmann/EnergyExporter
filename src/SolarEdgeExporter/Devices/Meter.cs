@@ -1,4 +1,5 @@
 using System;
+using System.Text.Json.Serialization;
 using SolarEdgeExporter.Modbus;
 using SolarEdgeExporter.Prometheus;
 
@@ -33,6 +34,10 @@ namespace SolarEdgeExporter.Devices
 
     public class Meter : IDevice
     {
+        /// <inheritdoc />
+        [JsonIgnore]
+        public string DeviceIdentifier => SerialNumber!;
+
         [StringModbusRegister(2, 32)]
         public string? Manufacturer { get; init; }
 
@@ -87,8 +92,7 @@ namespace SolarEdgeExporter.Devices
         public double AcVoltageP3 { get; init; }
 
         [ScaledModbusRegister(78, typeof(short), 82, typeof(short))]
-        [PrometheusMetric(MetricType.Gauge, "solaredge_meter_ac_voltage_line_to_line_avg",
-            "AC voltage line-to-line average")]
+        [PrometheusMetric(MetricType.Gauge, "solaredge_meter_ac_voltage_line_to_line_avg", "AC voltage line-to-line average")]
         public double AcVoltageLineToLineAvg { get; init; }
 
         [ScaledModbusRegister(79, typeof(short), 82, typeof(short))]
@@ -208,18 +212,15 @@ namespace SolarEdgeExporter.Devices
         public double ExportedEnergyApparent { get; init; }
 
         [ScaledModbusRegister(124, typeof(uint), 138, typeof(short))]
-        [PrometheusMetric(MetricType.Counter, "solaredge_meter_exported_energy_apparent_p1",
-            "Exported energy apparent on phase 1")]
+        [PrometheusMetric(MetricType.Counter, "solaredge_meter_exported_energy_apparent_p1", "Exported energy apparent on phase 1")]
         public double ExportedEnergyApparentP1 { get; init; }
 
         [ScaledModbusRegister(126, typeof(uint), 138, typeof(short))]
-        [PrometheusMetric(MetricType.Counter, "solaredge_meter_exported_energy_apparent_p2",
-            "Exported energy apparent on phase 2")]
+        [PrometheusMetric(MetricType.Counter, "solaredge_meter_exported_energy_apparent_p2", "Exported energy apparent on phase 2")]
         public double ExportedEnergyApparentP2 { get; init; }
 
         [ScaledModbusRegister(128, typeof(uint), 138, typeof(short))]
-        [PrometheusMetric(MetricType.Counter, "solaredge_meter_exported_energy_apparent_p3",
-            "Exported energy apparent on phase 3")]
+        [PrometheusMetric(MetricType.Counter, "solaredge_meter_exported_energy_apparent_p3", "Exported energy apparent on phase 3")]
         public double ExportedEnergyApparentP3 { get; init; }
 
         [ScaledModbusRegister(130, typeof(uint), 138, typeof(short))]
@@ -227,98 +228,79 @@ namespace SolarEdgeExporter.Devices
         public double ImportedEnergyApparent { get; init; }
 
         [ScaledModbusRegister(132, typeof(uint), 138, typeof(short))]
-        [PrometheusMetric(MetricType.Counter, "solaredge_meter_imported_energy_apparent_p1",
-            "Imported energy apparent on phase 1")]
+        [PrometheusMetric(MetricType.Counter, "solaredge_meter_imported_energy_apparent_p1", "Imported energy apparent on phase 1")]
         public double ImportedEnergyApparentP1 { get; init; }
 
         [ScaledModbusRegister(134, typeof(uint), 138, typeof(short))]
-        [PrometheusMetric(MetricType.Counter, "solaredge_meter_imported_energy_apparent_p2",
-            "Imported energy apparent on phase 2")]
+        [PrometheusMetric(MetricType.Counter, "solaredge_meter_imported_energy_apparent_p2", "Imported energy apparent on phase 2")]
         public double ImportedEnergyApparentP2 { get; init; }
 
         [ScaledModbusRegister(136, typeof(uint), 138, typeof(short))]
-        [PrometheusMetric(MetricType.Counter, "solaredge_meter_imported_energy_apparent_p3",
-            "Imported energy apparent on phase 3")]
+        [PrometheusMetric(MetricType.Counter, "solaredge_meter_imported_energy_apparent_p3", "Imported energy apparent on phase 3")]
         public double ImportedEnergyApparentP3 { get; init; }
 
         [ScaledModbusRegister(139, typeof(uint), 171, typeof(short))]
-        [PrometheusMetric(MetricType.Counter, "solaredge_meter_imported_energy_reactive_q1",
-            "Imported energy reactive Q1")]
+        [PrometheusMetric(MetricType.Counter, "solaredge_meter_imported_energy_reactive_q1", "Imported energy reactive Q1")]
         public double ImportedEnergyReactiveQ1 { get; init; }
 
         [ScaledModbusRegister(141, typeof(uint), 171, typeof(short))]
-        [PrometheusMetric(MetricType.Counter, "solaredge_meter_imported_energy_reactive_q1_p1",
-            "Imported energy reactive Q1 on phase 1")]
+        [PrometheusMetric(MetricType.Counter, "solaredge_meter_imported_energy_reactive_q1_p1", "Imported energy reactive Q1 on phase 1")]
         public double ImportedEnergyReactiveQ1P1 { get; init; }
 
         [ScaledModbusRegister(143, typeof(uint), 171, typeof(short))]
-        [PrometheusMetric(MetricType.Counter, "solaredge_meter_imported_energy_reactive_q1_p2",
-            "Imported energy reactive Q1 on phase 2")]
+        [PrometheusMetric(MetricType.Counter, "solaredge_meter_imported_energy_reactive_q1_p2", "Imported energy reactive Q1 on phase 2")]
         public double ImportedEnergyReactiveQ1P2 { get; init; }
 
         [ScaledModbusRegister(145, typeof(uint), 171, typeof(short))]
-        [PrometheusMetric(MetricType.Counter, "solaredge_meter_imported_energy_reactive_q1_p3",
-            "Imported energy reactive Q1 on phase 3")]
+        [PrometheusMetric(MetricType.Counter, "solaredge_meter_imported_energy_reactive_q1_p3", "Imported energy reactive Q1 on phase 3")]
         public double ImportedEnergyReactiveQ1P3 { get; init; }
 
         [ScaledModbusRegister(147, typeof(uint), 171, typeof(short))]
-        [PrometheusMetric(MetricType.Counter, "solaredge_meter_imported_energy_reactive_q2",
-            "Imported energy reactive Q2")]
+        [PrometheusMetric(MetricType.Counter, "solaredge_meter_imported_energy_reactive_q2", "Imported energy reactive Q2")]
         public double ImportedEnergyReactiveQ2 { get; init; }
 
         [ScaledModbusRegister(149, typeof(uint), 171, typeof(short))]
-        [PrometheusMetric(MetricType.Counter, "solaredge_meter_imported_energy_reactive_q2_p1",
-            "Imported energy reactive Q2 on phase 1")]
+        [PrometheusMetric(MetricType.Counter, "solaredge_meter_imported_energy_reactive_q2_p1", "Imported energy reactive Q2 on phase 1")]
         public double ImportedEnergyReactiveQ2P1 { get; init; }
 
         [ScaledModbusRegister(151, typeof(uint), 171, typeof(short))]
-        [PrometheusMetric(MetricType.Counter, "solaredge_meter_imported_energy_reactive_q2_p2",
-            "Imported energy reactive Q2 on phase 2")]
+        [PrometheusMetric(MetricType.Counter, "solaredge_meter_imported_energy_reactive_q2_p2", "Imported energy reactive Q2 on phase 2")]
         public double ImportedEnergyReactiveQ2P2 { get; init; }
 
         [ScaledModbusRegister(153, typeof(uint), 171, typeof(short))]
-        [PrometheusMetric(MetricType.Counter, "solaredge_meter_imported_energy_reactive_q2_p3",
-            "Imported energy reactive Q2 on phase 3")]
+        [PrometheusMetric(MetricType.Counter, "solaredge_meter_imported_energy_reactive_q2_p3", "Imported energy reactive Q2 on phase 3")]
         public double ImportedEnergyReactiveQ2P3 { get; init; }
 
         [ScaledModbusRegister(155, typeof(uint), 171, typeof(short))]
-        [PrometheusMetric(MetricType.Counter, "solaredge_meter_exported_energy_reactive_q3",
-            "Exported energy reactive Q3")]
+        [PrometheusMetric(MetricType.Counter, "solaredge_meter_exported_energy_reactive_q3", "Exported energy reactive Q3")]
         public double ExportedEnergyReactiveQ3 { get; init; }
 
         [ScaledModbusRegister(157, typeof(uint), 171, typeof(short))]
-        [PrometheusMetric(MetricType.Counter, "solaredge_meter_exported_energy_reactive_q3_p1",
-            "Exported energy reactive Q3 on phase 1")]
+        [PrometheusMetric(MetricType.Counter, "solaredge_meter_exported_energy_reactive_q3_p1", "Exported energy reactive Q3 on phase 1")]
         public double ExportedEnergyReactiveQ3P1 { get; init; }
 
         [ScaledModbusRegister(159, typeof(uint), 171, typeof(short))]
-        [PrometheusMetric(MetricType.Counter, "solaredge_meter_exported_energy_reactive_q3_p2",
-            "Exported energy reactive Q3 on phase 2")]
+        [PrometheusMetric(MetricType.Counter, "solaredge_meter_exported_energy_reactive_q3_p2", "Exported energy reactive Q3 on phase 2")]
         public double ExportedEnergyReactiveQ3P2 { get; init; }
 
         [ScaledModbusRegister(161, typeof(uint), 171, typeof(short))]
-        [PrometheusMetric(MetricType.Counter, "solaredge_meter_exported_energy_reactive_q3_p3",
-            "Exported energy reactive Q3 on phase 3")]
+        [PrometheusMetric(MetricType.Counter, "solaredge_meter_exported_energy_reactive_q3_p3", "Exported energy reactive Q3 on phase 3")]
         public double ExportedEnergyReactiveQ3P3 { get; init; }
 
         [ScaledModbusRegister(163, typeof(uint), 171, typeof(short))]
-        [PrometheusMetric(MetricType.Counter, "solaredge_meter_exported_energy_reactive_q4",
-            "Exported energy reactive Q4")]
+        [PrometheusMetric(MetricType.Counter, "solaredge_meter_exported_energy_reactive_q4", "Exported energy reactive Q4")]
         public double ExportedEnergyReactiveQ4 { get; init; }
 
         [ScaledModbusRegister(165, typeof(uint), 171, typeof(short))]
-        [PrometheusMetric(MetricType.Counter, "solaredge_meter_exported_energy_reactive_q4_p1",
-            "Exported energy reactive Q4 on phase 1")]
+        [PrometheusMetric(MetricType.Counter, "solaredge_meter_exported_energy_reactive_q4_p1", "Exported energy reactive Q4 on phase 1")]
         public double ExportedEnergyReactiveQ4P1 { get; init; }
 
         [ScaledModbusRegister(167, typeof(uint), 171, typeof(short))]
-        [PrometheusMetric(MetricType.Counter, "solaredge_meter_exported_energy_reactive_q4_p2",
-            "Exported energy reactive Q4 on phase 2")]
+        [PrometheusMetric(MetricType.Counter, "solaredge_meter_exported_energy_reactive_q4_p2", "Exported energy reactive Q4 on phase 2")]
         public double ExportedEnergyReactiveQ4P2 { get; init; }
 
         [ScaledModbusRegister(169, typeof(uint), 171, typeof(short))]
-        [PrometheusMetric(MetricType.Counter, "solaredge_meter_exported_energy_reactive_q4_p3",
-            "Exported energy reactive Q4 on phase 3")]
+        [PrometheusMetric(MetricType.Counter, "solaredge_meter_exported_energy_reactive_q4_p3", "Exported energy reactive Q4 on phase 3")]
         public double ExportedEnergyReactiveQ4P3 { get; init; }
 
         [ModbusRegister(172)]
