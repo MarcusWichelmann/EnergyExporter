@@ -10,6 +10,7 @@ using SolarEdgeExporter.Modbus;
 using SolarEdgeExporter.Options;
 using SolarEdgeExporter.Prometheus;
 using SolarEdgeExporter.Services;
+using SolarEdgeExporter.Utils;
 
 namespace SolarEdgeExporter
 {
@@ -25,14 +26,9 @@ namespace SolarEdgeExporter
         public void ConfigureServices(IServiceCollection services)
         {
             // Register options
-            services.AddOptions<ModbusOptions>().Bind(Configuration.GetSection(ModbusOptions.Key))
-                .ValidateDataAnnotations();
-            services.AddOptions<DevicesOptions>().Bind(Configuration.GetSection(DevicesOptions.Key))
-                .ValidateDataAnnotations();
-            services.AddOptions<PollingOptions>().Bind(Configuration.GetSection(PollingOptions.Key))
-                .ValidateDataAnnotations();
-            services.AddOptions<ExportOptions>().Bind(Configuration.GetSection(ExportOptions.Key))
-                .ValidateDataAnnotations();
+            services.AddOptions<DevicesOptions>().Bind(Configuration.GetSection(DevicesOptions.Key)).RecursivelyValidateDataAnnotations();
+            services.AddOptions<PollingOptions>().Bind(Configuration.GetSection(PollingOptions.Key)).RecursivelyValidateDataAnnotations();
+            services.AddOptions<ExportOptions>().Bind(Configuration.GetSection(ExportOptions.Key)).RecursivelyValidateDataAnnotations();
 
             var indentJson = Configuration.GetValue<bool>($"{ExportOptions.Key}:{nameof(ExportOptions.IndentedJson)}");
 
@@ -47,7 +43,6 @@ namespace SolarEdgeExporter
             });
 
             // Register services
-            services.AddSingleton<ModbusReader>();
             services.AddSingleton<MetricsWriter>();
             services.AddSingleton<DeviceService>();
             services.AddHostedService<DevicePollingService>();

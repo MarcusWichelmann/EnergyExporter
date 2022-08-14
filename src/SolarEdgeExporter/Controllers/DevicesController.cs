@@ -18,25 +18,29 @@ namespace SolarEdgeExporter.Controllers
             _deviceService = deviceService ?? throw new ArgumentNullException(nameof(deviceService));
         }
 
+        [HttpGet]
+        public IEnumerable<object> GetDevices()
+        {
+            // We have to cast to object here, so polymorphism is respected when serializing the objects.
+            return _deviceService.Devices.Select(device => (object)device);
+        }
+
         [HttpGet("inverters")]
-        public IEnumerable<Inverter> GetInverters() => _deviceService.Inverters;
+        public IEnumerable<Inverter> GetInverters() => _deviceService.Devices.OfType<Inverter>();
 
         [HttpGet("inverters/{id:int}")]
-        public ActionResult<Inverter> GetInverter(int id)
-            => _deviceService.Inverters.ElementAtOrDefault(id) ?? (ActionResult<Inverter>)NotFound();
+        public ActionResult<Inverter> GetInverter(int id) => _deviceService.Devices.OfType<Inverter>().ElementAtOrDefault(id) ?? (ActionResult<Inverter>)NotFound();
 
         [HttpGet("meters")]
-        public IEnumerable<Meter> GetMeters() => _deviceService.Meters;
+        public IEnumerable<Meter> GetMeters() => _deviceService.Devices.OfType<Meter>();
 
         [HttpGet("meters/{id:int}")]
-        public ActionResult<Meter> GetMeter(int id)
-            => _deviceService.Meters.ElementAtOrDefault(id) ?? (ActionResult<Meter>)NotFound();
+        public ActionResult<Meter> GetMeter(int id) => _deviceService.Devices.OfType<Meter>().ElementAtOrDefault(id) ?? (ActionResult<Meter>)NotFound();
 
         [HttpGet("batteries")]
-        public IEnumerable<Battery> GetBatteries() => _deviceService.Batteries;
+        public IEnumerable<Battery> GetBatteries() => _deviceService.Devices.OfType<Battery>();
 
         [HttpGet("batteries/{id:int}")]
-        public ActionResult<Battery> GetBatteries(int id)
-            => _deviceService.Batteries.ElementAtOrDefault(id) ?? (ActionResult<Battery>)NotFound();
+        public ActionResult<Battery> GetBatteries(int id) => _deviceService.Devices.OfType<Battery>().ElementAtOrDefault(id) ?? (ActionResult<Battery>)NotFound();
     }
 }

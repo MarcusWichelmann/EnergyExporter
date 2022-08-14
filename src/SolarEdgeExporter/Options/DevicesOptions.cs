@@ -6,13 +6,29 @@ namespace SolarEdgeExporter.Options
     {
         public const string Key = "Devices";
 
-        [Range(0, 1)]
-        public int Inverters { get; init; }
+        [Required]
+        [MinLength(1)]
+        public ModbusSource[]? ModbusSources { get; init; }
 
-        [Range(0, 3)]
-        public int Meters { get; init; }
+        public class ModbusSource
+        {
+            [Required]
+            public string? Host { get; init; }
 
-        [Range(0, 2)]
-        public int Batteries { get; init; }
+            public ushort Port { get; init; }
+
+            public byte Unit { get; init; }
+
+            [Range(0, 1)]
+            public int Inverters { get; init; }
+
+            [Range(0, 3)]
+            public int Meters { get; init; }
+
+            [Range(0, 2)]
+            public int Batteries { get; init; }
+
+            public string EndpointIdentifier => $"{Host}:{Port}#{Unit}";
+        }
     }
 }
