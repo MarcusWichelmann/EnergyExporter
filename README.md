@@ -59,7 +59,7 @@ Sample docker-compose.yml:
 
 ```yaml
 solaredge-exporter:
-    image: ghcr.io/marcuswichelmann/solaredge-exporter:1
+    image: ghcr.io/marcuswichelmann/solaredge-exporter:2
     container_name: solaredge-exporter
     ports:
         - "14552:80"
