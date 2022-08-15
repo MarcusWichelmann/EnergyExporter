@@ -43,47 +43,8 @@ You can also query multiple inverters, that are not realted to each other (not i
 
 Depending on how many Modbus devices are connected to each inverter and should be queried, you should set the `Meters` and `Batteries` values accordingly.
 
-```json
-{
-    "ModbusSources": [
-        {
-            "Host": "192.168.42.10",
-            "Port": 1502,
-            "Unit": 1,
-            "Inverters": 1,
-            "Meters": 1,
-            // This inverter has also a meter and a battery connected
-            "Batteries": 1
-        },
-        {
-            "Host": "192.168.42.11",
-            "Port": 1502,
-            "Unit": 2,
-            // Remember to increment this
-            "Inverters": 1,
-            "Meters": 0,
-            // No meters connected to this inverter
-            "Batteries": 0
-        }
-    ]
-},
-```
-
 The `InfluxDB` secion in the export configuration is fully optional and can be configured to push all queried metrics directly to an InfluxDB instance. If you don't need that, just
 remove that section.
-
-```json
-{
-    "IndentedJson": true,
-    // The following is optional
-    "InfluxDB": {
-        "Url": "https://influxdb.domain.tld",
-        "Bucket": "Solar",
-        "Organisation": "MyOrganization",
-        "Token": "Token"
-    }
-}
-```
 
 If needed, you can enable extended logging by setting the default log level in `appsettings.json` to `Debug`.
 
