@@ -11,7 +11,7 @@ namespace SolarEdgeExporter
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args)
-            => Host.CreateDefaultBuilder(args).ConfigureWebHostDefaults(webBuilder => {
+            => Host.CreateDefaultBuilder(args).UseSystemd().ConfigureWebHostDefaults(webBuilder => {
                 webBuilder.UseStartup<Startup>();
             });
     }
