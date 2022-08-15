@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using SolarEdgeExporter.InfluxDb;
 using SolarEdgeExporter.Options;
 
 namespace SolarEdgeExporter.Services
@@ -13,15 +14,17 @@ namespace SolarEdgeExporter.Services
         private readonly ILogger<DevicePollingService> _logger;
         private readonly DeviceService _deviceService;
         private readonly IOptions<PollingOptions> _pollingOptions;
+        private readonly InfluxDbExporter _influxDbExporter;
 
         private Timer? _timer;
 
         public DevicePollingService(ILogger<DevicePollingService> logger, DeviceService deviceService,
-            IOptions<PollingOptions> pollingOptions)
+            IOptions<PollingOptions> pollingOptions, InfluxDbExporter influxDbExporter)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _deviceService = deviceService ?? throw new ArgumentNullException(nameof(deviceService));
             _pollingOptions = pollingOptions ?? throw new ArgumentNullException(nameof(pollingOptions));
+            _influxDbExporter = influxDbExporter ?? throw new ArgumentNullException(nameof(influxDbExporter));
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
@@ -54,6 +57,9 @@ namespace SolarEdgeExporter.Services
             try
             {
                 await _deviceService.QueryDevicesAsync();
+                await _influxDbExporter.PushMetricsAsync();
+
+                _logger.LogDebug("Polling completed.");
             }
             catch (Exception ex)
             {

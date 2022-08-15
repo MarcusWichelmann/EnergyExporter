@@ -10,6 +10,7 @@
     <ItemGroup>
         <PackageReference Include="FluentModbus" Version="3.1.0" />
         <PackageReference Include="Hellang.Middleware.ProblemDetails" Version="5.4.0" />
+        <PackageReference Include="InfluxDB.Client" Version="4.4.0" />
         <PackageReference Include="RecursiveDataAnnotationsValidation" Version="1.1.1" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.1.4" />
     </ItemGroup>
