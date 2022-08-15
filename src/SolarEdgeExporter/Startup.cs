@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
-using SolarEdgeExporter.Modbus;
+using SolarEdgeExporter.InfluxDb;
 using SolarEdgeExporter.Options;
 using SolarEdgeExporter.Prometheus;
 using SolarEdgeExporter.Services;
@@ -44,6 +44,7 @@ namespace SolarEdgeExporter
 
             // Register services
             services.AddSingleton<MetricsWriter>();
+            services.AddSingleton<InfluxDbExporter>();
             services.AddSingleton<DeviceService>();
             services.AddHostedService<DevicePollingService>();
         }
