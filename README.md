@@ -58,14 +58,16 @@ easily: [Images](https://github.com/users/MarcusWichelmann/packages/container/pa
 Sample docker-compose.yml:
 
 ```yaml
-solaredge-exporter:
-    image: ghcr.io/marcuswichelmann/solaredge-exporter:2
-    container_name: solaredge-exporter
-    ports:
-        - "14552:80"
-    volumes:
-        - /path/to/appsettings.json:/app/appsettings.json
-    restart: always
+version: "3"
+services:
+    solaredge-exporter:
+        image: ghcr.io/marcuswichelmann/solaredge-exporter:2
+        container_name: solaredge-exporter
+        ports:
+            - "14552:80"
+        volumes:
+            - /path/to/appsettings.json:/app/appsettings.json
+        restart: always
 ```
 
 #### Using .NET
