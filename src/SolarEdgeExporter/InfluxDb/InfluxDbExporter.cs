@@ -24,9 +24,9 @@ public class InfluxDbExporter : IDisposable
 
     public InfluxDbExporter(ILogger<InfluxDbExporter> logger, IOptions<ExportOptions> exportOptions, DeviceService deviceService)
     {
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _exportOptions = exportOptions ?? throw new ArgumentNullException(nameof(exportOptions));
-        _deviceService = deviceService ?? throw new ArgumentNullException(nameof(deviceService));
+        _logger = logger;
+        _exportOptions = exportOptions;
+        _deviceService = deviceService;
 
         ExportOptions.InfluxDbOptions? influxDbOptions = exportOptions.Value.InfluxDb;
         if (influxDbOptions != null)

@@ -19,9 +19,6 @@ namespace SolarEdgeExporter.Modbus
 
         public static int GetValueSize(Type valueType)
         {
-            if (valueType == null)
-                throw new ArgumentNullException(nameof(valueType));
-
             if (valueType.IsEnum)
                 valueType = valueType.GetEnumUnderlyingType();
 
@@ -33,15 +30,13 @@ namespace SolarEdgeExporter.Modbus
 
         public static object ReadValue(Type valueType, ReadOnlySpan<byte> data, RegisterEndianness endianness)
         {
-            if (valueType == null)
-                throw new ArgumentNullException(nameof(valueType));
-
             if (valueType.IsEnum)
                 valueType = valueType.GetEnumUnderlyingType();
 
             int valueSize = GetValueSize(valueType);
             if (valueSize < 2)
-                throw new ArgumentException("The value type is too small. Registers are at least 2-bytes wide.", nameof(valueType));
+                throw new ArgumentException("The value type is too small. Registers are at least 2-bytes wide.",
+                    nameof(valueType));
 
             // If values are encoded as mid-little-endian, swap each 2-byte pairs
             if (endianness == RegisterEndianness.MidLittleEndian)
@@ -58,21 +53,37 @@ namespace SolarEdgeExporter.Modbus
 
             // Read the value as little endian
             if (valueType == typeof(ushort))
-                return endianness == RegisterEndianness.BigEndian ? BinaryPrimitives.ReadUInt16BigEndian(data) : BinaryPrimitives.ReadUInt16LittleEndian(data);
+                return endianness == RegisterEndianness.BigEndian
+                    ? BinaryPrimitives.ReadUInt16BigEndian(data)
+                    : BinaryPrimitives.ReadUInt16LittleEndian(data);
             if (valueType == typeof(short))
-                return endianness == RegisterEndianness.BigEndian ? BinaryPrimitives.ReadInt16BigEndian(data) : BinaryPrimitives.ReadInt16LittleEndian(data);
+                return endianness == RegisterEndianness.BigEndian
+                    ? BinaryPrimitives.ReadInt16BigEndian(data)
+                    : BinaryPrimitives.ReadInt16LittleEndian(data);
             if (valueType == typeof(uint))
-                return endianness == RegisterEndianness.BigEndian ? BinaryPrimitives.ReadUInt32BigEndian(data) : BinaryPrimitives.ReadUInt32LittleEndian(data);
+                return endianness == RegisterEndianness.BigEndian
+                    ? BinaryPrimitives.ReadUInt32BigEndian(data)
+                    : BinaryPrimitives.ReadUInt32LittleEndian(data);
             if (valueType == typeof(int))
-                return endianness == RegisterEndianness.BigEndian ? BinaryPrimitives.ReadInt32BigEndian(data) : BinaryPrimitives.ReadInt32LittleEndian(data);
+                return endianness == RegisterEndianness.BigEndian
+                    ? BinaryPrimitives.ReadInt32BigEndian(data)
+                    : BinaryPrimitives.ReadInt32LittleEndian(data);
             if (valueType == typeof(ulong))
-                return endianness == RegisterEndianness.BigEndian ? BinaryPrimitives.ReadUInt64BigEndian(data) : BinaryPrimitives.ReadUInt64LittleEndian(data);
+                return endianness == RegisterEndianness.BigEndian
+                    ? BinaryPrimitives.ReadUInt64BigEndian(data)
+                    : BinaryPrimitives.ReadUInt64LittleEndian(data);
             if (valueType == typeof(long))
-                return endianness == RegisterEndianness.BigEndian ? BinaryPrimitives.ReadInt64BigEndian(data) : BinaryPrimitives.ReadInt64LittleEndian(data);
+                return endianness == RegisterEndianness.BigEndian
+                    ? BinaryPrimitives.ReadInt64BigEndian(data)
+                    : BinaryPrimitives.ReadInt64LittleEndian(data);
             if (valueType == typeof(float))
-                return endianness == RegisterEndianness.BigEndian ? BinaryPrimitives.ReadSingleBigEndian(data) : BinaryPrimitives.ReadSingleLittleEndian(data);
+                return endianness == RegisterEndianness.BigEndian
+                    ? BinaryPrimitives.ReadSingleBigEndian(data)
+                    : BinaryPrimitives.ReadSingleLittleEndian(data);
             if (valueType == typeof(double))
-                return endianness == RegisterEndianness.BigEndian ? BinaryPrimitives.ReadDoubleBigEndian(data) : BinaryPrimitives.ReadDoubleLittleEndian(data);
+                return endianness == RegisterEndianness.BigEndian
+                    ? BinaryPrimitives.ReadDoubleBigEndian(data)
+                    : BinaryPrimitives.ReadDoubleLittleEndian(data);
             throw new ArgumentException("Unsupported value type.", nameof(valueType));
         }
     }

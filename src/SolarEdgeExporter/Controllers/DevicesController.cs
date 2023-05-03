@@ -15,7 +15,7 @@ namespace SolarEdgeExporter.Controllers
 
         public DevicesController(DeviceService deviceService)
         {
-            _deviceService = deviceService ?? throw new ArgumentNullException(nameof(deviceService));
+            _deviceService = deviceService;
         }
 
         [HttpGet]

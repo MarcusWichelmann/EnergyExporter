@@ -15,10 +15,11 @@ namespace DeviceMappingGenerator
         public static void Main(string[] args)
         {
             // Parse registers
-            Register[] registers = File.ReadAllLines(FileName).Where(line => !string.IsNullOrWhiteSpace(line)).Select(line => {
-                string[] values = LineRegex.Match(line).Groups.Values.Select(v => v.Value).ToArray();
-                return new Register(int.Parse(values[1]), int.Parse(values[2]), values[3], values[4], values[5]);
-            }).ToArray();
+            Register[] registers = File.ReadAllLines(FileName).Where(line => !string.IsNullOrWhiteSpace(line)).Select(
+                line => {
+                    string[] values = LineRegex.Match(line).Groups.Values.Select(v => v.Value).ToArray();
+                    return new Register(int.Parse(values[1]), int.Parse(values[2]), values[3], values[4], values[5]);
+                }).ToArray();
 
             // Find start offset
             int startOffset = registers.Min(r => r.Address);
@@ -93,9 +94,9 @@ namespace DeviceMappingGenerator
         {
             Address = address;
             Size = size;
-            Name = name ?? throw new ArgumentNullException(nameof(name));
-            Type = type ?? throw new ArgumentNullException(nameof(type));
-            Comment = comment ?? throw new ArgumentNullException(nameof(comment));
+            Name = name;
+            Type = type;
+            Comment = comment;
         }
     }
 }

@@ -20,8 +20,8 @@ namespace SolarEdgeExporter.Prometheus
 
         public MetricsWriter(ILogger<MetricsWriter> logger, DeviceService deviceService)
         {
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _deviceService = deviceService ?? throw new ArgumentNullException(nameof(deviceService));
+            _logger = logger;
+            _deviceService = deviceService;
         }
 
         public async Task WriteToStreamAsync(Stream stream)

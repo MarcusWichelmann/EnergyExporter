@@ -21,10 +21,10 @@ namespace SolarEdgeExporter.Services
         public DevicePollingService(ILogger<DevicePollingService> logger, DeviceService deviceService,
             IOptions<PollingOptions> pollingOptions, InfluxDbExporter influxDbExporter)
         {
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _deviceService = deviceService ?? throw new ArgumentNullException(nameof(deviceService));
-            _pollingOptions = pollingOptions ?? throw new ArgumentNullException(nameof(pollingOptions));
-            _influxDbExporter = influxDbExporter ?? throw new ArgumentNullException(nameof(influxDbExporter));
+            _logger = logger;
+            _deviceService = deviceService;
+            _pollingOptions = pollingOptions;
+            _influxDbExporter = influxDbExporter;
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)

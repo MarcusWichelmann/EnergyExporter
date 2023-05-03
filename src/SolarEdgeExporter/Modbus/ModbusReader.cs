@@ -24,8 +24,8 @@ namespace SolarEdgeExporter.Modbus
 
         public ModbusReader(ILogger<ModbusReader> logger, string host, ushort port, byte unit)
         {
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _host = host ?? throw new ArgumentNullException(nameof(host));
+            _logger = logger;
+            _host = host;
             _port = port;
             _unit = unit;
         }

@@ -23,7 +23,7 @@ namespace SolarEdgeExporter.Services
 
         public DeviceService(ILogger<DeviceService> logger, IOptions<DevicesOptions> devicesOptions, ILoggerFactory loggerFactory)
         {
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _logger = logger;
 
             // Create modbus readers
             ILogger<ModbusReader> modbusReaderLogger = loggerFactory.CreateLogger<ModbusReader>();

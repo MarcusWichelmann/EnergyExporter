@@ -14,9 +14,9 @@ namespace SolarEdgeExporter.Modbus
         public ScaledModbusRegisterAttribute(ushort relativeRegisterAddress, Type registerType, ushort relativeScaleFactorRegisterAddress, Type scaleFactorRegisterType,
             RegisterEndianness endianness = RegisterEndianness.BigEndian) : base(relativeRegisterAddress, endianness)
         {
-            RegisterType = registerType ?? throw new ArgumentNullException(nameof(registerType));
+            RegisterType = registerType;
             RelativeScaleFactorRegisterAddress = relativeScaleFactorRegisterAddress;
-            ScaleFactorRegisterType = scaleFactorRegisterType ?? throw new ArgumentNullException(nameof(scaleFactorRegisterType));
+            ScaleFactorRegisterType = scaleFactorRegisterType;
         }
 
         public override IEnumerable<ushort> GetRelativeAddressesToRead(Type propertyType)

@@ -15,7 +15,7 @@ public class RecursiveDataAnnotationValidateOptions<TOptions> : IValidateOptions
 
     public RecursiveDataAnnotationValidateOptions(string optionsBuilderName)
     {
-        Name = optionsBuilderName ?? throw new ArgumentNullException(nameof(optionsBuilderName));
+        Name = optionsBuilderName;
     }
 
     public ValidateOptionsResult Validate(string name, TOptions options)

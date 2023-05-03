@@ -23,8 +23,8 @@ namespace SolarEdgeExporter.Prometheus
                 throw new InvalidEnumArgumentException(nameof(type), (int)type, typeof(MetricType));
 
             Type = type;
-            Name = name ?? throw new ArgumentNullException(nameof(name));
-            Description = description ?? throw new ArgumentNullException(nameof(description));
+            Name = name;
+            Description = description;
         }
 
         public string GetHelpLine() => $"# HELP {Name} {Description}";

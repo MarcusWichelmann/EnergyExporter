@@ -12,6 +12,6 @@ public class InfluxDbMetricAttribute : Attribute
 
     public InfluxDbMetricAttribute(string field)
     {
-        Field = field ?? throw new ArgumentNullException(nameof(field));
+        Field = field;
     }
 }
