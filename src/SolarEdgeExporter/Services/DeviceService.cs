@@ -44,7 +44,7 @@ public class DeviceService {
     private async Task<IReadOnlyCollection<IDevice>> QueryModbusSourceAsync(
         DevicesOptions.ModbusSource modbusSource,
         ModbusReader modbusReader) {
-        _logger.LogDebug($"Querying devices from {modbusSource.EndpointIdentifier}...");
+        _logger.LogDebug("Querying devices from {Endpoint}.", modbusSource.EndpointIdentifier);
 
         var devices = new List<IDevice>();
 
@@ -52,27 +52,27 @@ public class DeviceService {
             foreach (ushort address in DeviceAddresses.Inverters.Take(modbusSource.Inverters))
                 devices.Add(await modbusReader.ReadDeviceAsync<Inverter>(address));
 
-            _logger.LogDebug($"Inverters for {modbusSource.EndpointIdentifier} queried successfully!");
+            _logger.LogDebug("Inverters for {Endpoint} queried successfully!", modbusSource.EndpointIdentifier);
         } catch (Exception ex) {
-            _logger.LogError(ex, $"Reading inverters from {modbusSource.EndpointIdentifier} failed.");
+            _logger.LogError(ex, "Reading inverters from {Endpoint} failed.", modbusSource.EndpointIdentifier);
         }
 
         try {
             foreach (ushort address in DeviceAddresses.Meters.Take(modbusSource.Meters))
                 devices.Add(await modbusReader.ReadDeviceAsync<Meter>(address));
 
-            _logger.LogDebug($"Meters for {modbusSource.EndpointIdentifier} queried successfully!");
+            _logger.LogDebug("Meters for {Endpoint} queried successfully!", modbusSource.EndpointIdentifier);
         } catch (Exception ex) {
-            _logger.LogError(ex, $"Reading meters from {modbusSource.EndpointIdentifier} failed.");
+            _logger.LogError(ex, "Reading meters from {Endpoint} failed.", modbusSource.EndpointIdentifier);
         }
 
         try {
             foreach (ushort address in DeviceAddresses.Batteries.Take(modbusSource.Batteries))
                 devices.Add(await modbusReader.ReadDeviceAsync<Battery>(address));
 
-            _logger.LogDebug($"Batteries for {modbusSource.EndpointIdentifier} queried successfully!");
+            _logger.LogDebug("Batteries for {Endpoint} queried successfully!", modbusSource.EndpointIdentifier);
         } catch (Exception ex) {
-            _logger.LogError(ex, $"Reading batteries from {modbusSource.EndpointIdentifier} failed.");
+            _logger.LogError(ex, "Reading batteries from {Endpoint} failed.", modbusSource.EndpointIdentifier);
         }
 
         return devices.AsReadOnly();

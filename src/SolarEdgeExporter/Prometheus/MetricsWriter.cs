@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 using SolarEdgeExporter.Devices;
 using SolarEdgeExporter.Services;
 
-namespace SolarEdgeExporter.Prometheus; 
+namespace SolarEdgeExporter.Prometheus;
 
 public class MetricsWriter {
     private record MetricsEntry(IDevice Device, PropertyInfo Property, PrometheusMetricAttribute MetricAttribute);
@@ -48,7 +48,8 @@ public class MetricsWriter {
                     m => m.MetricAttribute.Type != metricAttribute.Type
                          || m.MetricAttribute.Description != metricAttribute.Description))
                 _logger.LogWarning(
-                    $"Not all metric attributes for \"{metricAttribute.Name}\" have the same type and description.");
+                    "Not all metric attributes for {Metric} have the same type and description.",
+                    metricAttribute.Name);
 
             // Write metric header lines
             await streamWriter.WriteLineAsync(metricAttribute.GetHelpLine());

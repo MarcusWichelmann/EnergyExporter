@@ -31,14 +31,14 @@ public class InfluxDbExporter : IDisposable {
 
         ExportOptions.InfluxDbOptions? influxDbOptions = exportOptions.Value.InfluxDb;
         if (influxDbOptions != null)
-            _influxDbClient = InfluxDBClientFactory.Create(influxDbOptions.Url, influxDbOptions.Token);
+            _influxDbClient = new InfluxDBClient(influxDbOptions.Url, influxDbOptions.Token);
     }
 
     public async Task PushMetricsAsync() {
         if (_influxDbClient == null)
             return;
 
-        _logger.LogDebug("Pushing metrics to InfluxDB...");
+        _logger.LogDebug("Pushing metrics to InfluxDB.");
 
         ExportOptions.InfluxDbOptions influxDbOptions = _exportOptions.Value.InfluxDb!;
         WriteApiAsync writeApi = _influxDbClient.GetWriteApiAsync();

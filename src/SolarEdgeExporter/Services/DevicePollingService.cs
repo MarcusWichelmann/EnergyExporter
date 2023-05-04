@@ -29,7 +29,7 @@ public class DevicePollingService : IHostedService, IDisposable {
     }
 
     public async Task StartAsync(CancellationToken cancellationToken) {
-        _logger.LogInformation("Starting device polling...");
+        _logger.LogInformation("Starting device polling.");
 
         // Do an initial update
         await PollDevicesAsync();
@@ -40,7 +40,7 @@ public class DevicePollingService : IHostedService, IDisposable {
     }
 
     public Task StopAsync(CancellationToken cancellationToken) {
-        _logger.LogInformation("Stopping device polling...");
+        _logger.LogInformation("Stopping device polling.");
 
         // Disable the timer
         _timer?.Change(Timeout.Infinite, 0);
@@ -51,7 +51,7 @@ public class DevicePollingService : IHostedService, IDisposable {
     private async void OnTimerTick(object? state) => await PollDevicesAsync();
 
     private async Task PollDevicesAsync() {
-        _logger.LogDebug("Polling devices...");
+        _logger.LogDebug("Polling devices.");
         try {
             await _deviceService.QueryDevicesAsync();
             await _influxDbExporter.PushMetricsAsync();

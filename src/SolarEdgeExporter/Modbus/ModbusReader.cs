@@ -9,7 +9,7 @@ using FluentModbus;
 using Microsoft.Extensions.Logging;
 using SolarEdgeExporter.Devices;
 
-namespace SolarEdgeExporter.Modbus; 
+namespace SolarEdgeExporter.Modbus;
 
 public class ModbusReader {
     private readonly ILogger<ModbusReader> _logger;
@@ -36,7 +36,11 @@ public class ModbusReader {
                 Reconnect();
 
             _logger.LogDebug(
-                $"Reading {typeof(TDevice).Name} at address 0x{startRegister:X4} from \"{_host}\" and unit {_unit}...");
+                "Reading {Device} at address {StartRegister} from {Host} and unit {Unit}.",
+                typeof(TDevice).Name,
+                $"0x{startRegister}",
+                _host,
+                _unit);
 
             // Create a list of all relative register addresses that need to be read
             ushort[] relativeAddressesToRead = typeof(TDevice).GetProperties()
@@ -101,7 +105,7 @@ public class ModbusReader {
     }
 
     private void Reconnect() {
-        _logger.LogInformation($"Connecting to modbus server at \"{_host}\"...");
+        _logger.LogInformation("Connecting to modbus server at {Host}.", _host);
 
         if (!IPAddress.TryParse(_host, out IPAddress? address))
             throw new ModbusReadException($"Invalid IP address: {_host}");
@@ -111,7 +115,7 @@ public class ModbusReader {
         _modbusClient.ReadTimeout = 5000;
         _modbusClient.Connect(endpoint);
 
-        _logger.LogInformation($"Modbus connection to \"{_host}\" established.");
+        _logger.LogInformation("Modbus connection to {Host} established.", _host);
     }
 
     private TDevice CreateDeviceInstance<TDevice>(ReadOnlySpan<byte> registers) where TDevice : IDevice {

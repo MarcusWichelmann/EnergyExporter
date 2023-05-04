@@ -15,7 +15,7 @@ public class RecursiveDataAnnotationValidateOptions<TOptions> : IValidateOptions
         Name = optionsBuilderName;
     }
 
-    public ValidateOptionsResult Validate(string name, TOptions options) {
+    public ValidateOptionsResult Validate(string? name, TOptions options) {
         if (name != Name)
             return ValidateOptionsResult.Skip;
 
