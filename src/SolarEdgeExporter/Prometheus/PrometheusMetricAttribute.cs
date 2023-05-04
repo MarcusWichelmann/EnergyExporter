@@ -1,42 +1,37 @@
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 
-namespace SolarEdgeExporter.Prometheus
-{
-    /// <summary>
-    /// Specifies that the value of this property should be exported for prometheus.
-    /// </summary>
-    [AttributeUsage(AttributeTargets.Property)]
-    public class PrometheusMetricAttribute : Attribute
-    {
-        public MetricType Type { get; }
+namespace SolarEdgeExporter.Prometheus; 
 
-        public string Name { get; }
+/// <summary>
+/// Specifies that the value of this property should be exported for prometheus.
+/// </summary>
+[AttributeUsage(AttributeTargets.Property)]
+public class PrometheusMetricAttribute : Attribute {
+    public MetricType Type { get; }
 
-        public string Description { get; }
+    public string Name { get; }
 
-        public PrometheusMetricAttribute(MetricType type, string name, string description)
-        {
-            if (!Enum.IsDefined(typeof(MetricType), type))
-                throw new InvalidEnumArgumentException(nameof(type), (int)type, typeof(MetricType));
+    public string Description { get; }
 
-            Type = type;
-            Name = name;
-            Description = description;
-        }
+    public PrometheusMetricAttribute(MetricType type, string name, string description) {
+        if (!Enum.IsDefined(typeof(MetricType), type))
+            throw new InvalidEnumArgumentException(nameof(type), (int)type, typeof(MetricType));
 
-        public string GetHelpLine() => $"# HELP {Name} {Description}";
+        Type = type;
+        Name = name;
+        Description = description;
+    }
 
-        public string GetTypeLine() => $"# TYPE {Name} {Type.ToTypeName()}";
+    public string GetHelpLine() => $"# HELP {Name} {Description}";
 
-        public string GetSampleLine(string deviceIdentifier, double propertyValue)
-        {
-            if (string.IsNullOrWhiteSpace(deviceIdentifier))
-                throw new ArgumentException("Value cannot be null or whitespace.", nameof(deviceIdentifier));
+    public string GetTypeLine() => $"# TYPE {Name} {Type.ToTypeName()}";
 
-            return $"{Name}{{device=\"{deviceIdentifier}\"}} {propertyValue.ToString(CultureInfo.InvariantCulture)}";
-        }
+    public string GetSampleLine(string deviceIdentifier, double propertyValue) {
+        if (string.IsNullOrWhiteSpace(deviceIdentifier))
+            throw new ArgumentException("Value cannot be null or whitespace.", nameof(deviceIdentifier));
+
+        return $"{Name}{{device=\"{deviceIdentifier}\"}} {propertyValue.ToString(CultureInfo.InvariantCulture)}";
     }
 }

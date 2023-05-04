@@ -9,79 +9,72 @@ using SolarEdgeExporter.Devices;
 using SolarEdgeExporter.Modbus;
 using SolarEdgeExporter.Options;
 
-namespace SolarEdgeExporter.Services
-{
-    public class DeviceService
-    {
-        private readonly ILogger<DeviceService> _logger;
+namespace SolarEdgeExporter.Services; 
 
-        private readonly IImmutableDictionary<DevicesOptions.ModbusSource, ModbusReader> _modbusReaders;
+public class DeviceService {
+    private readonly ILogger<DeviceService> _logger;
 
-        private volatile IImmutableList<IDevice> _devices = ImmutableList<IDevice>.Empty;
+    private readonly IImmutableDictionary<DevicesOptions.ModbusSource, ModbusReader> _modbusReaders;
 
-        public IImmutableList<IDevice> Devices => _devices;
+    private volatile IImmutableList<IDevice> _devices = ImmutableList<IDevice>.Empty;
 
-        public DeviceService(ILogger<DeviceService> logger, IOptions<DevicesOptions> devicesOptions, ILoggerFactory loggerFactory)
-        {
-            _logger = logger;
+    public IImmutableList<IDevice> Devices => _devices;
 
-            // Create modbus readers
-            ILogger<ModbusReader> modbusReaderLogger = loggerFactory.CreateLogger<ModbusReader>();
-            _modbusReaders = devicesOptions.Value.ModbusSources!.ToImmutableDictionary(source => source,
-                source => new ModbusReader(modbusReaderLogger, source.Host!, source.Port, source.Unit));
+    public DeviceService(
+        ILogger<DeviceService> logger,
+        IOptions<DevicesOptions> devicesOptions,
+        ILoggerFactory loggerFactory) {
+        _logger = logger;
+
+        // Create modbus readers
+        ILogger<ModbusReader> modbusReaderLogger = loggerFactory.CreateLogger<ModbusReader>();
+        _modbusReaders = devicesOptions.Value.ModbusSources!.ToImmutableDictionary(
+            source => source,
+            source => new ModbusReader(modbusReaderLogger, source.Host!, source.Port, source.Unit));
+    }
+
+    public async Task QueryDevicesAsync() {
+        // Query all modbus sources concurrently and aggregate the resulting devices
+        Task<IReadOnlyCollection<IDevice>>[] queryTasks =
+            _modbusReaders.Select(p => QueryModbusSourceAsync(p.Key, p.Value)).ToArray();
+        await Task.WhenAll(queryTasks);
+        _devices = queryTasks.SelectMany(task => task.Result).ToImmutableList();
+    }
+
+    private async Task<IReadOnlyCollection<IDevice>> QueryModbusSourceAsync(
+        DevicesOptions.ModbusSource modbusSource,
+        ModbusReader modbusReader) {
+        _logger.LogDebug($"Querying devices from {modbusSource.EndpointIdentifier}...");
+
+        var devices = new List<IDevice>();
+
+        try {
+            foreach (ushort address in DeviceAddresses.Inverters.Take(modbusSource.Inverters))
+                devices.Add(await modbusReader.ReadDeviceAsync<Inverter>(address));
+
+            _logger.LogDebug($"Inverters for {modbusSource.EndpointIdentifier} queried successfully!");
+        } catch (Exception ex) {
+            _logger.LogError(ex, $"Reading inverters from {modbusSource.EndpointIdentifier} failed.");
         }
 
-        public async Task QueryDevicesAsync()
-        {
-            // Query all modbus sources concurrently and aggregate the resulting devices
-            Task<IReadOnlyCollection<IDevice>>[] queryTasks = _modbusReaders.Select(p => QueryModbusSourceAsync(p.Key, p.Value)).ToArray();
-            await Task.WhenAll(queryTasks);
-            _devices = queryTasks.SelectMany(task => task.Result).ToImmutableList();
+        try {
+            foreach (ushort address in DeviceAddresses.Meters.Take(modbusSource.Meters))
+                devices.Add(await modbusReader.ReadDeviceAsync<Meter>(address));
+
+            _logger.LogDebug($"Meters for {modbusSource.EndpointIdentifier} queried successfully!");
+        } catch (Exception ex) {
+            _logger.LogError(ex, $"Reading meters from {modbusSource.EndpointIdentifier} failed.");
         }
 
-        private async Task<IReadOnlyCollection<IDevice>> QueryModbusSourceAsync(DevicesOptions.ModbusSource modbusSource, ModbusReader modbusReader)
-        {
-            _logger.LogDebug($"Querying devices from {modbusSource.EndpointIdentifier}...");
+        try {
+            foreach (ushort address in DeviceAddresses.Batteries.Take(modbusSource.Batteries))
+                devices.Add(await modbusReader.ReadDeviceAsync<Battery>(address));
 
-            var devices = new List<IDevice>();
-
-            try
-            {
-                foreach (ushort address in DeviceAddresses.Inverters.Take(modbusSource.Inverters))
-                    devices.Add(await modbusReader.ReadDeviceAsync<Inverter>(address));
-
-                _logger.LogDebug($"Inverters for {modbusSource.EndpointIdentifier} queried successfully!");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Reading inverters from {modbusSource.EndpointIdentifier} failed.");
-            }
-
-            try
-            {
-                foreach (ushort address in DeviceAddresses.Meters.Take(modbusSource.Meters))
-                    devices.Add(await modbusReader.ReadDeviceAsync<Meter>(address));
-
-                _logger.LogDebug($"Meters for {modbusSource.EndpointIdentifier} queried successfully!");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Reading meters from {modbusSource.EndpointIdentifier} failed.");
-            }
-
-            try
-            {
-                foreach (ushort address in DeviceAddresses.Batteries.Take(modbusSource.Batteries))
-                    devices.Add(await modbusReader.ReadDeviceAsync<Battery>(address));
-
-                _logger.LogDebug($"Batteries for {modbusSource.EndpointIdentifier} queried successfully!");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Reading batteries from {modbusSource.EndpointIdentifier} failed.");
-            }
-
-            return devices.AsReadOnly();
+            _logger.LogDebug($"Batteries for {modbusSource.EndpointIdentifier} queried successfully!");
+        } catch (Exception ex) {
+            _logger.LogError(ex, $"Reading batteries from {modbusSource.EndpointIdentifier} failed.");
         }
+
+        return devices.AsReadOnly();
     }
 }

@@ -1,4 +1,3 @@
-using System;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -17,25 +16,37 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder();
 builder.Host.UseSystemd();
 
 // Register options
-builder.Services.AddOptions<DevicesOptions>().Bind(builder.Configuration.GetSection(DevicesOptions.Key))
+builder.Services.AddOptions<DevicesOptions>()
+    .Bind(builder.Configuration.GetSection(DevicesOptions.Key))
     .RecursivelyValidateDataAnnotations();
-builder.Services.AddOptions<PollingOptions>().Bind(builder.Configuration.GetSection(PollingOptions.Key))
+builder.Services.AddOptions<PollingOptions>()
+    .Bind(builder.Configuration.GetSection(PollingOptions.Key))
     .RecursivelyValidateDataAnnotations();
-builder.Services.AddOptions<ExportOptions>().Bind(builder.Configuration.GetSection(ExportOptions.Key))
+builder.Services.AddOptions<ExportOptions>()
+    .Bind(builder.Configuration.GetSection(ExportOptions.Key))
     .RecursivelyValidateDataAnnotations();
 
 var indentJson = builder.Configuration.GetValue<bool>($"{ExportOptions.Key}:{nameof(ExportOptions.IndentedJson)}");
 
 // Add API support
-builder.Services.AddControllers().AddXmlSerializerFormatters().AddJsonOptions(options => {
-    options.JsonSerializerOptions.WriteIndented = indentJson;
-    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-});
+builder.Services.AddControllers()
+    .AddXmlSerializerFormatters()
+    .AddJsonOptions(
+        options => {
+            options.JsonSerializerOptions.WriteIndented = indentJson;
+            options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+        });
 builder.Services.AddProblemDetails();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(options => {
-    options.SwaggerDoc("v1", new OpenApiInfo { Title = "SolarEdge Exporter", Version = "v1" });
-});
+builder.Services.AddSwaggerGen(
+    options => {
+        options.SwaggerDoc(
+            "v1",
+            new OpenApiInfo {
+                Title = "SolarEdge Exporter",
+                Version = "v1"
+            });
+    });
 
 // Register services
 builder.Services.AddSingleton<MetricsWriter>();
@@ -58,10 +69,12 @@ app.MapGet("/", context => context.Response.WriteAsync("SolarEdge Exporter"));
 app.MapControllers();
 
 // Metrics endpoint
-app.MapGet("/metrics", context => {
-    context.Response.ContentType = "text/plain";
-    var metricsWriter = context.RequestServices.GetRequiredService<MetricsWriter>();
-    return metricsWriter.WriteToStreamAsync(context.Response.Body);
-});
+app.MapGet(
+    "/metrics",
+    context => {
+        context.Response.ContentType = "text/plain";
+        var metricsWriter = context.RequestServices.GetRequiredService<MetricsWriter>();
+        return metricsWriter.WriteToStreamAsync(context.Response.Body);
+    });
 
 app.Run();

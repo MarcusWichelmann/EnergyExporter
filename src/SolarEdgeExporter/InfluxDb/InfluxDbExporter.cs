@@ -14,16 +14,17 @@ using SolarEdgeExporter.Services;
 
 namespace SolarEdgeExporter.InfluxDb;
 
-public class InfluxDbExporter : IDisposable
-{
+public class InfluxDbExporter : IDisposable {
     private readonly ILogger<InfluxDbExporter> _logger;
     private readonly IOptions<ExportOptions> _exportOptions;
     private readonly DeviceService _deviceService;
 
     private readonly InfluxDBClient? _influxDbClient;
 
-    public InfluxDbExporter(ILogger<InfluxDbExporter> logger, IOptions<ExportOptions> exportOptions, DeviceService deviceService)
-    {
+    public InfluxDbExporter(
+        ILogger<InfluxDbExporter> logger,
+        IOptions<ExportOptions> exportOptions,
+        DeviceService deviceService) {
         _logger = logger;
         _exportOptions = exportOptions;
         _deviceService = deviceService;
@@ -33,8 +34,7 @@ public class InfluxDbExporter : IDisposable
             _influxDbClient = InfluxDBClientFactory.Create(influxDbOptions.Url, influxDbOptions.Token);
     }
 
-    public async Task PushMetricsAsync()
-    {
+    public async Task PushMetricsAsync() {
         if (_influxDbClient == null)
             return;
 
@@ -47,21 +47,24 @@ public class InfluxDbExporter : IDisposable
         DateTime timestamp = DateTime.UtcNow;
 
         // Create list of data points
-        List<PointData> dataPoints = _deviceService.Devices.Select(device => GetDeviceMeasurement(device, timestamp)).ToList();
+        List<PointData> dataPoints =
+            _deviceService.Devices.Select(device => GetDeviceMeasurement(device, timestamp)).ToList();
 
         // Push data points
         await writeApi.WritePointsAsync(dataPoints, influxDbOptions.Bucket, influxDbOptions.Organisation);
     }
 
-    private PointData GetDeviceMeasurement(IDevice device, DateTime timestamp)
-    {
+    private PointData GetDeviceMeasurement(IDevice device, DateTime timestamp) {
         // TODO: Maybe use an attribute for this in the future.
         var measurementName = $"solaredge_{device.GetType().Name.ToLower()}";
-        PointData measurement = PointData.Measurement(measurementName).Timestamp(timestamp, WritePrecision.S).Tag("device", device.DeviceIdentifier);
+        PointData measurement = PointData.Measurement(measurementName)
+            .Timestamp(timestamp, WritePrecision.S)
+            .Tag("device", device.DeviceIdentifier);
 
-        foreach (PropertyInfo property in device.GetType().GetProperties())
-        {
-            var attribute = (InfluxDbMetricAttribute?)Attribute.GetCustomAttribute(property, typeof(InfluxDbMetricAttribute));
+        foreach (PropertyInfo property in device.GetType().GetProperties()) {
+            var attribute = (InfluxDbMetricAttribute?)Attribute.GetCustomAttribute(
+                property,
+                typeof(InfluxDbMetricAttribute));
             if (attribute == null)
                 continue;
 
@@ -76,8 +79,7 @@ public class InfluxDbExporter : IDisposable
     }
 
     /// <inheritdoc />
-    public void Dispose()
-    {
+    public void Dispose() {
         _influxDbClient?.Dispose();
     }
 }
