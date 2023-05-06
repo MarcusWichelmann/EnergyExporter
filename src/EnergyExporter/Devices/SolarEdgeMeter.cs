@@ -1,12 +1,12 @@
 using System;
 using System.Text.Json.Serialization;
-using SolarEdgeExporter.InfluxDb;
-using SolarEdgeExporter.Modbus;
-using SolarEdgeExporter.Prometheus;
+using EnergyExporter.InfluxDb;
+using EnergyExporter.Modbus;
+using EnergyExporter.Prometheus;
 
-namespace SolarEdgeExporter.Devices; 
+namespace EnergyExporter.Devices; 
 
-public enum MeterType : ushort {
+public enum SolarEdgeMeterType : ushort {
     SinglePhase = 201,
     SplitSinglePhase = 202,
     WyeConnectThreePhase = 203,
@@ -14,7 +14,7 @@ public enum MeterType : ushort {
 }
 
 [Flags]
-public enum MeterEvents : uint {
+public enum SolarEdgeMeterEvents : uint {
     PowerFailure = 0x4,
     UnderVoltage = 0x8,
     LowPowerFactor = 0x10,
@@ -31,11 +31,13 @@ public enum MeterEvents : uint {
     Reserved8 = 0x8000
 }
 
-public class Meter : IDevice {
+[InfluxDbMeasurement("solaredge_meter")]
+public class SolarEdgeMeter : SolarEdgeDevice {
+    public static readonly ushort[] ModbusAddresses = { 0x9CB9, 0x9D67, 0x9E15 };
+    
     /// <inheritdoc />
-    [JsonIgnore]
-    public string DeviceIdentifier => SerialNumber!;
-
+    public override string DeviceType => "SolarEdgeMeter";
+    
     [StringModbusRegister(2, 32)]
     [InfluxDbMetric("manufacturer")]
     public string? Manufacturer { get; init; }
@@ -54,7 +56,7 @@ public class Meter : IDevice {
 
     [StringModbusRegister(50, 32)]
     [InfluxDbMetric("serial_number")]
-    public string? SerialNumber { get; init; }
+    public override string? SerialNumber { get; set; }
 
     [ModbusRegister(66)]
     [InfluxDbMetric("device_address")]
@@ -62,7 +64,7 @@ public class Meter : IDevice {
 
     [ModbusRegister(67)]
     [InfluxDbMetric("type")]
-    public MeterType Type { get; init; }
+    public SolarEdgeMeterType Type { get; init; }
 
     [ScaledModbusRegister(69, typeof(short), 73, typeof(short))]
     [PrometheusMetric(MetricType.Gauge, "solaredge_meter_ac_current", "AC current")]
@@ -428,5 +430,5 @@ public class Meter : IDevice {
 
     [ModbusRegister(172)]
     [InfluxDbMetric("events")]
-    public MeterEvents Events { get; init; }
+    public SolarEdgeMeterEvents Events { get; init; }
 }

@@ -5,30 +5,28 @@ using System.Net;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using EnergyExporter.Devices;
 using FluentModbus;
 using Microsoft.Extensions.Logging;
-using SolarEdgeExporter.Devices;
 
-namespace SolarEdgeExporter.Modbus;
+namespace EnergyExporter.Modbus;
 
 public class ModbusReader {
     private readonly ILogger<ModbusReader> _logger;
 
     private readonly string _host;
     private readonly ushort _port;
-    private readonly byte _unit;
 
     private readonly ModbusTcpClient _modbusClient = new();
     private readonly SemaphoreSlim _modbusLock = new(1);
 
-    public ModbusReader(ILogger<ModbusReader> logger, string host, ushort port, byte unit) {
+    public ModbusReader(ILogger<ModbusReader> logger, string host, ushort port) {
         _logger = logger;
         _host = host;
         _port = port;
-        _unit = unit;
     }
 
-    public async Task<TDevice> ReadDeviceAsync<TDevice>(ushort startRegister) where TDevice : IDevice {
+    public async Task<TDevice> ReadDeviceAsync<TDevice>(byte unit, ushort startRegister) where TDevice : IDevice {
         await _modbusLock.WaitAsync();
         try {
             // Ensure the client is connected
@@ -40,7 +38,7 @@ public class ModbusReader {
                 typeof(TDevice).Name,
                 $"0x{startRegister}",
                 _host,
-                _unit);
+                unit);
 
             // Create a list of all relative register addresses that need to be read
             ushort[] relativeAddressesToRead = typeof(TDevice).GetProperties()
@@ -81,7 +79,7 @@ public class ModbusReader {
                     // Read a chunk of registers
                     var chunkSize = (ushort)(chunkEnd - chunkStart + 1);
                     Memory<byte> chunkData = await _modbusClient.ReadHoldingRegistersAsync(
-                        _unit,
+                        unit,
                         (ushort)(startRegister + chunkStart),
                         chunkSize);
                     if (chunkData.Length != chunkSize * ModbusUtils.SingleRegisterSize)

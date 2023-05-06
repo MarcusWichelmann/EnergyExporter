@@ -3,16 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using EnergyExporter.Devices;
+using EnergyExporter.Options;
+using EnergyExporter.Services;
 using InfluxDB.Client;
 using InfluxDB.Client.Api.Domain;
 using InfluxDB.Client.Writes;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using SolarEdgeExporter.Devices;
-using SolarEdgeExporter.Options;
-using SolarEdgeExporter.Services;
 
-namespace SolarEdgeExporter.InfluxDb;
+namespace EnergyExporter.InfluxDb;
 
 public class InfluxDbExporter : IDisposable {
     private readonly ILogger<InfluxDbExporter> _logger;
@@ -54,17 +54,19 @@ public class InfluxDbExporter : IDisposable {
         await writeApi.WritePointsAsync(dataPoints, influxDbOptions.Bucket, influxDbOptions.Organisation);
     }
 
-    private PointData GetDeviceMeasurement(IDevice device, DateTime timestamp) {
-        // TODO: Maybe use an attribute for this in the future.
-        var measurementName = $"solaredge_{device.GetType().Name.ToLower()}";
+    private PointData GetDeviceMeasurement(IDevice device, DateTime timestamp)
+    {
+        var measurementAttribute = device.GetType().GetCustomAttribute<InfluxDbMeasurementAttribute>();
+        if (measurementAttribute == null)
+            throw new Exception($"Device {device.GetType().Name} has no measurement attribute.");
+            
+        string measurementName = measurementAttribute.Name;
         PointData measurement = PointData.Measurement(measurementName)
             .Timestamp(timestamp, WritePrecision.S)
             .Tag("device", device.DeviceIdentifier);
 
         foreach (PropertyInfo property in device.GetType().GetProperties()) {
-            var attribute = (InfluxDbMetricAttribute?)Attribute.GetCustomAttribute(
-                property,
-                typeof(InfluxDbMetricAttribute));
+            var attribute = property.GetCustomAttribute<InfluxDbMetricAttribute>();
             if (attribute == null)
                 continue;
 

@@ -1,6 +1,6 @@
 using System;
 
-namespace SolarEdgeExporter.Prometheus; 
+namespace EnergyExporter.Prometheus; 
 
 public enum MetricType {
     Counter,

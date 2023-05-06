@@ -1,17 +1,16 @@
-using System.Text.Json.Serialization;
-using SolarEdgeExporter.InfluxDb;
-using SolarEdgeExporter.Modbus;
-using SolarEdgeExporter.Prometheus;
+using EnergyExporter.InfluxDb;
+using EnergyExporter.Modbus;
+using EnergyExporter.Prometheus;
 
-namespace SolarEdgeExporter.Devices; 
+namespace EnergyExporter.Devices; 
 
-public enum InverterType : ushort {
+public enum SolarEdgeInverterType : ushort {
     SinglePhase = 101,
     SplitPhase = 102,
     ThreePhase = 103
 }
 
-public enum InverterStatus : ushort {
+public enum SolarEdgeInverterStatus : ushort {
     Off = 1,
     Sleeping = 2,
     Starting = 3,
@@ -22,11 +21,13 @@ public enum InverterStatus : ushort {
     Standby = 8
 }
 
-public class Inverter : IDevice {
+[InfluxDbMeasurement("solaredge_inverter")]
+public class SolarEdgeInverter : SolarEdgeDevice {
+    public const ushort ModbusAddress = 0x9C40;
+    
     /// <inheritdoc />
-    [JsonIgnore]
-    public string DeviceIdentifier => SerialNumber!;
-
+    public override string DeviceType => "SolarEdgeInverter";
+    
     [StringModbusRegister(4, 32)]
     [InfluxDbMetric("manufacturer")]
     public string? Manufacturer { get; init; }
@@ -41,7 +42,7 @@ public class Inverter : IDevice {
 
     [StringModbusRegister(52, 32)]
     [InfluxDbMetric("serial_number")]
-    public string? SerialNumber { get; init; }
+    public override string? SerialNumber { get; set; }
 
     [ModbusRegister(68)]
     [InfluxDbMetric("device_address")]
@@ -49,7 +50,7 @@ public class Inverter : IDevice {
 
     [ModbusRegister(69)]
     [InfluxDbMetric("type")]
-    public InverterType Type { get; init; }
+    public SolarEdgeInverterType Type { get; init; }
 
     [ScaledModbusRegister(71, typeof(ushort), 75, typeof(short))]
     [PrometheusMetric(MetricType.Gauge, "solaredge_inverter_ac_current", "AC current")]
@@ -154,7 +155,7 @@ public class Inverter : IDevice {
     [ModbusRegister(107)]
     [PrometheusMetric(MetricType.Gauge, "solaredge_inverter_status", "Status")]
     [InfluxDbMetric("status")]
-    public InverterStatus Status { get; init; }
+    public SolarEdgeInverterStatus Status { get; init; }
 
     [ModbusRegister(108)]
     [PrometheusMetric(MetricType.Gauge, "solaredge_inverter_vendor_status", "Vendor status")]

@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace SolarEdgeExporter.Options; 
+namespace EnergyExporter.Options; 
 
 public class PollingOptions {
     public const string Key = "Polling";

@@ -1,6 +1,6 @@
 using System;
 
-namespace SolarEdgeExporter.InfluxDb;
+namespace EnergyExporter.InfluxDb;
 
 /// <summary>
 /// Specifies that the value of this property should be exported to InfluxDb.

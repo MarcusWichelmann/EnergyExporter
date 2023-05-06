@@ -2,7 +2,7 @@ using System;
 using System.ComponentModel;
 using System.Globalization;
 
-namespace SolarEdgeExporter.Prometheus; 
+namespace EnergyExporter.Prometheus; 
 
 /// <summary>
 /// Specifies that the value of this property should be exported for prometheus.

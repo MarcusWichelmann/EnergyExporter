@@ -1,13 +1,13 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using EnergyExporter.InfluxDb;
+using EnergyExporter.Options;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using SolarEdgeExporter.InfluxDb;
-using SolarEdgeExporter.Options;
 
-namespace SolarEdgeExporter.Services; 
+namespace EnergyExporter.Services; 
 
 public class DevicePollingService : IHostedService, IDisposable {
     private readonly ILogger<DevicePollingService> _logger;

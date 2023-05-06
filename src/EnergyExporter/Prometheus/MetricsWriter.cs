@@ -5,11 +5,11 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using EnergyExporter.Devices;
+using EnergyExporter.Services;
 using Microsoft.Extensions.Logging;
-using SolarEdgeExporter.Devices;
-using SolarEdgeExporter.Services;
 
-namespace SolarEdgeExporter.Prometheus;
+namespace EnergyExporter.Prometheus;
 
 public class MetricsWriter {
     private record MetricsEntry(IDevice Device, PropertyInfo Property, PrometheusMetricAttribute MetricAttribute);

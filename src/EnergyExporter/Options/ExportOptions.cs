@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
-namespace SolarEdgeExporter.Options; 
+namespace EnergyExporter.Options;
 
 public class ExportOptions {
     public const string Key = "Export";
@@ -13,15 +13,15 @@ public class ExportOptions {
 
     public class InfluxDbOptions {
         [Required]
-        public string? Url { get; init; }
+        public string Url { get; init; } = null!;
 
         [Required]
-        public string? Bucket { get; init; }
+        public string Bucket { get; init; } = null!;
 
         [Required]
-        public string? Organisation { get; init; }
+        public string Organisation { get; init; } = null!;
 
         [Required]
-        public string? Token { get; init; }
+        public string Token { get; init; } = null!;
     }
 }

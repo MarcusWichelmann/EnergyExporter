@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 
-namespace SolarEdgeExporter.Modbus; 
+namespace EnergyExporter.Modbus; 
 
 /// <summary>
 /// Specifies where the data for a property can be found on the modbus.

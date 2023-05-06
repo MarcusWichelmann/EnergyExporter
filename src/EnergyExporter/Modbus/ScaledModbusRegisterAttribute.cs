@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace SolarEdgeExporter.Modbus; 
+namespace EnergyExporter.Modbus; 
 
 /// <inheritdoc />
 public class ScaledModbusRegisterAttribute : ModbusRegisterAttribute {

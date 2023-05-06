@@ -1,7 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-namespace SolarEdgeExporter.Utils;
+namespace EnergyExporter.Utils;
 
 public static class OptionsBuilderDataAnnotationsExtensions {
     public static OptionsBuilder<TOptions> RecursivelyValidateDataAnnotations<TOptions>(

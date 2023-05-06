@@ -5,13 +5,13 @@ EXPOSE 443
 
 FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:6.0 AS publish
 WORKDIR /src
-COPY src/SolarEdgeExporter/SolarEdgeExporter.csproj SolarEdgeExporter/
-WORKDIR /src/SolarEdgeExporter
-RUN dotnet restore SolarEdgeExporter.csproj
-COPY src/SolarEdgeExporter/ .
-RUN dotnet publish SolarEdgeExporter.csproj -c Release -o /app/publish
+COPY src/EnergyExporter/EnergyExporter.csproj EnergyExporter/
+WORKDIR /src/EnergyExporter
+RUN dotnet restore EnergyExporter.csproj
+COPY src/EnergyExporter/ .
+RUN dotnet publish EnergyExporter.csproj -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "SolarEdgeExporter.dll"]
+ENTRYPOINT ["dotnet", "EnergyExporter.dll"]

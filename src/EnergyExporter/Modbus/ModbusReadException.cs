@@ -1,6 +1,6 @@
 using System;
 
-namespace SolarEdgeExporter.Modbus; 
+namespace EnergyExporter.Modbus; 
 
 public class ModbusReadException : Exception {
     public ModbusReadException() { }

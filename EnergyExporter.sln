@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SolarEdgeExporter", "src\SolarEdgeExporter\SolarEdgeExporter.csproj", "{701E7C9F-48B4-4174-8D5A-24EF9983C8B3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnergyExporter", "src\EnergyExporter\EnergyExporter.csproj", "{701E7C9F-48B4-4174-8D5A-24EF9983C8B3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeviceMappingGenerator", "tools\DeviceMappingGenerator\DeviceMappingGenerator.csproj", "{A6EA0E9C-ACB2-4723-86F4-A8F64030B0AA}"
 EndProject

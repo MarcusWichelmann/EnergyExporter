@@ -1,11 +1,11 @@
 using System.Text.Json.Serialization;
-using SolarEdgeExporter.InfluxDb;
-using SolarEdgeExporter.Modbus;
-using SolarEdgeExporter.Prometheus;
+using EnergyExporter.InfluxDb;
+using EnergyExporter.Modbus;
+using EnergyExporter.Prometheus;
 
-namespace SolarEdgeExporter.Devices; 
+namespace EnergyExporter.Devices;
 
-public enum BatteryStatus : uint {
+public enum SolarEdgeBatteryStatus : uint {
     Off = 0,
     Standby = 1,
     Initializing = 2,
@@ -15,11 +15,13 @@ public enum BatteryStatus : uint {
     Idle = 7
 }
 
-public class Battery : IDevice {
-    /// <inheritdoc />
-    [JsonIgnore]
-    public string DeviceIdentifier => SerialNumber!;
+[InfluxDbMeasurement("solaredge_battery")]
+public class SolarEdgeBattery : SolarEdgeDevice {
+    public static readonly ushort[] ModbusAddresses = { 0xE100, 0xE200 };
 
+    /// <inheritdoc />
+    public override string DeviceType => "SolarEdgeBattery";
+    
     [StringModbusRegister(0, 32)]
     [InfluxDbMetric("manufacturer")]
     public string? Manufacturer { get; init; }
@@ -34,7 +36,7 @@ public class Battery : IDevice {
 
     [StringModbusRegister(48, 32)]
     [InfluxDbMetric("serial_number")]
-    public string? SerialNumber { get; init; }
+    public override string? SerialNumber { get; set; }
 
     [ModbusRegister(64, RegisterEndianness.MidLittleEndian)]
     [InfluxDbMetric("device_address")]
@@ -126,7 +128,7 @@ public class Battery : IDevice {
     [ModbusRegister(134, RegisterEndianness.MidLittleEndian)]
     [PrometheusMetric(MetricType.Gauge, "solaredge_battery_status", "Status")]
     [InfluxDbMetric("status")]
-    public BatteryStatus Status { get; init; }
+    public SolarEdgeBatteryStatus Status { get; init; }
 
     [ModbusRegister(136, RegisterEndianness.MidLittleEndian)]
     [PrometheusMetric(MetricType.Gauge, "solaredge_battery_vendor_status", "Vendor status")]

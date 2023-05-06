@@ -2,7 +2,7 @@ using System;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 
-namespace SolarEdgeExporter.Modbus; 
+namespace EnergyExporter.Modbus; 
 
 public enum RegisterEndianness {
     BigEndian,

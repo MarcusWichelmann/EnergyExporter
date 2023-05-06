@@ -4,7 +4,7 @@ using System.Linq;
 using Microsoft.Extensions.Options;
 using RecursiveDataAnnotationsValidation;
 
-namespace SolarEdgeExporter.Utils;
+namespace EnergyExporter.Utils;
 
 public class RecursiveDataAnnotationValidateOptions<TOptions> : IValidateOptions<TOptions> where TOptions : class {
     private readonly RecursiveDataAnnotationValidator _recursiveDataAnnotationValidator = new();
