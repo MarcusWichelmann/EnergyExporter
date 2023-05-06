@@ -3,15 +3,17 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace DeviceMappingGenerator; 
+namespace DeviceMappingGenerator;
 
-public static class Program {
+public static class Program
+{
     // A text file that contains the raw data from the tables in the SunSpec PDFs
     private const string FileName = "MeterRegisters.txt";
 
     private static readonly Regex LineRegex = new("^([0-9]+) [0-9]+ ([0-9]+) ([^ ]+) ([^ ]+) (.*)$");
 
-    public static void Main(string[] args) {
+    public static void Main(string[] args)
+    {
         // Parse registers
         Register[] registers = File.ReadAllLines(FileName)
             .Where(line => !string.IsNullOrWhiteSpace(line))
@@ -25,7 +27,8 @@ public static class Program {
         // Find start offset
         int startOffset = registers.Min(r => r.Address);
 
-        foreach (Register register in registers) {
+        foreach (Register register in registers)
+        {
             if (register.Name.EndsWith("_SF"))
                 continue;
 
@@ -34,10 +37,13 @@ public static class Program {
             // Map to C# type
             string propertyType;
             var stringLength = 0;
-            if (register.Type.StartsWith("String(")) {
+            if (register.Type.StartsWith("String("))
+            {
                 propertyType = "string?";
                 stringLength = int.Parse(register.Type[7..^1]);
-            } else {
+            }
+            else
+            {
                 propertyType = register.Type switch {
                     "uint16" => "ushort",
                     "int16" => "short",
@@ -48,7 +54,8 @@ public static class Program {
                 };
             }
 
-            if (scaleFactorRegister != null) {
+            if (scaleFactorRegister != null)
+            {
                 string scaleFactorRegisterType = scaleFactorRegister.Type switch {
                     "uint16" => "ushort",
                     "int16" => "short",
@@ -58,9 +65,13 @@ public static class Program {
                 Console.WriteLine(
                     $"[ScaledModbusRegister({register.Address - startOffset}, typeof({propertyType}), {scaleFactorRegister.Address - startOffset}, typeof({scaleFactorRegisterType}))]");
                 propertyType = "double";
-            } else if (propertyType == "string?") {
+            }
+            else if (propertyType == "string?")
+            {
                 Console.WriteLine($"[StringModbusRegister({register.Address - startOffset}, {stringLength})]");
-            } else {
+            }
+            else
+            {
                 Console.WriteLine($"[ModbusRegister({register.Address - startOffset})]");
             }
 
@@ -74,14 +85,16 @@ public static class Program {
     }
 }
 
-public class Register {
+public class Register
+{
     public int Address { get; }
     public int Size { get; }
     public string Name { get; }
     public string Type { get; }
     public string Comment { get; }
 
-    public Register(int address, int size, string name, string type, string comment) {
+    public Register(int address, int size, string name, string type, string comment)
+    {
         Address = address;
         Size = size;
         Name = name;

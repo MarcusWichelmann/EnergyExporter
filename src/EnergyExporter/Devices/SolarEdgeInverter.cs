@@ -2,15 +2,17 @@ using EnergyExporter.InfluxDb;
 using EnergyExporter.Modbus;
 using EnergyExporter.Prometheus;
 
-namespace EnergyExporter.Devices; 
+namespace EnergyExporter.Devices;
 
-public enum SolarEdgeInverterType : ushort {
+public enum SolarEdgeInverterType : ushort
+{
     SinglePhase = 101,
     SplitPhase = 102,
     ThreePhase = 103
 }
 
-public enum SolarEdgeInverterStatus : ushort {
+public enum SolarEdgeInverterStatus : ushort
+{
     Off = 1,
     Sleeping = 2,
     Starting = 3,
@@ -22,12 +24,13 @@ public enum SolarEdgeInverterStatus : ushort {
 }
 
 [InfluxDbMeasurement("solaredge_inverter")]
-public class SolarEdgeInverter : SolarEdgeDevice {
+public class SolarEdgeInverter : SolarEdgeDevice
+{
     public const ushort ModbusAddress = 0x9C40;
-    
+
     /// <inheritdoc />
     public override string DeviceType => "SolarEdgeInverter";
-    
+
     [StringModbusRegister(4, 32)]
     [InfluxDbMetric("manufacturer")]
     public string? Manufacturer { get; init; }

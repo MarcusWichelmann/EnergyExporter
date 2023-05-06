@@ -1,8 +1,9 @@
 using System;
 
-namespace EnergyExporter.Modbus; 
+namespace EnergyExporter.Modbus;
 
-public class ModbusReadException : Exception {
+public class ModbusReadException : Exception
+{
     public ModbusReadException() { }
     public ModbusReadException(string? message) : base(message) { }
     public ModbusReadException(string? message, Exception? innerException) : base(message, innerException) { }

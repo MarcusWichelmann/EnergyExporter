@@ -1,8 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace EnergyExporter.Options; 
+namespace EnergyExporter.Options;
 
-public class PollingOptions {
+public class PollingOptions
+{
     public const string Key = "Polling";
 
     [Range(1, int.MaxValue)]

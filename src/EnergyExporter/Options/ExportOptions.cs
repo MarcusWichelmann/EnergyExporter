@@ -3,7 +3,8 @@ using System.Text.Json.Serialization;
 
 namespace EnergyExporter.Options;
 
-public class ExportOptions {
+public class ExportOptions
+{
     public const string Key = "Export";
 
     public bool IndentedJson { get; init; }
@@ -11,7 +12,8 @@ public class ExportOptions {
     [JsonPropertyName("InfluxDB")]
     public InfluxDbOptions? InfluxDb { get; init; }
 
-    public class InfluxDbOptions {
+    public class InfluxDbOptions
+    {
         [Required]
         public string Url { get; init; } = null!;
 

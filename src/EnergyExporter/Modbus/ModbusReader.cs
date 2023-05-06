@@ -11,7 +11,8 @@ using Microsoft.Extensions.Logging;
 
 namespace EnergyExporter.Modbus;
 
-public class ModbusReader {
+public class ModbusReader
+{
     private readonly ILogger<ModbusReader> _logger;
 
     private readonly string _host;
@@ -20,15 +21,18 @@ public class ModbusReader {
     private readonly ModbusTcpClient _modbusClient = new();
     private readonly SemaphoreSlim _modbusLock = new(1);
 
-    public ModbusReader(ILogger<ModbusReader> logger, string host, ushort port) {
+    public ModbusReader(ILogger<ModbusReader> logger, string host, ushort port)
+    {
         _logger = logger;
         _host = host;
         _port = port;
     }
 
-    public async Task<TDevice> ReadDeviceAsync<TDevice>(byte unit, ushort startRegister) where TDevice : IDevice {
+    public async Task<TDevice> ReadDeviceAsync<TDevice>(byte unit, ushort startRegister) where TDevice : IDevice
+    {
         await _modbusLock.WaitAsync();
-        try {
+        try
+        {
             // Ensure the client is connected
             if (!_modbusClient.IsConnected)
                 Reconnect();
@@ -59,16 +63,19 @@ public class ModbusReader {
             int registerCount = relativeAddressesToRead.Max() + 1;
             Memory<byte> data = new byte[registerCount * ModbusUtils.SingleRegisterSize];
 
-            try {
+            try
+            {
                 // Read the required registers in as large chunks as possible
                 ushort chunkStart = relativeAddressesToRead.First();
                 ushort chunkEnd = chunkStart;
 
-                for (var i = 1; i < relativeAddressesToRead.Length; i++) {
+                for (var i = 1; i < relativeAddressesToRead.Length; i++)
+                {
                     ushort relativeAddress = relativeAddressesToRead[i];
 
                     // Continue until the next gap
-                    if (chunkEnd + 1 == relativeAddress) {
+                    if (chunkEnd + 1 == relativeAddress)
+                    {
                         chunkEnd = relativeAddress;
 
                         // Will more registers follow?
@@ -90,19 +97,24 @@ public class ModbusReader {
                     // Skip the gap and read the next chunk
                     chunkStart = chunkEnd = relativeAddress;
                 }
-            } catch {
+            }
+            catch
+            {
                 // Make sure the connection gets reestablished after a failed read, just in case...
                 _modbusClient.Disconnect();
                 throw;
             }
 
             return CreateDeviceInstance<TDevice>(data.Span);
-        } finally {
+        }
+        finally
+        {
             _modbusLock.Release();
         }
     }
 
-    private void Reconnect() {
+    private void Reconnect()
+    {
         _logger.LogInformation("Connecting to modbus server at {Host}.", _host);
 
         if (!IPAddress.TryParse(_host, out IPAddress? address))
@@ -116,13 +128,15 @@ public class ModbusReader {
         _logger.LogInformation("Modbus connection to {Host} established.", _host);
     }
 
-    private TDevice CreateDeviceInstance<TDevice>(ReadOnlySpan<byte> registers) where TDevice : IDevice {
+    private TDevice CreateDeviceInstance<TDevice>(ReadOnlySpan<byte> registers) where TDevice : IDevice
+    {
         // Instantiate the device
         var device = Activator.CreateInstance<TDevice>();
 
         // Iterate over device properties
         IEnumerable<PropertyInfo> properties = typeof(TDevice).GetProperties();
-        foreach (PropertyInfo? property in properties) {
+        foreach (PropertyInfo? property in properties)
+        {
             var attribute = Attribute.GetCustomAttribute(property, typeof(ModbusRegisterAttribute));
             if (attribute is not ModbusRegisterAttribute modbusRegisterAttribute)
                 continue;

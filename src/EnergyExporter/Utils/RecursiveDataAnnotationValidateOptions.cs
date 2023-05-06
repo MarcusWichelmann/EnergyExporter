@@ -6,16 +6,19 @@ using RecursiveDataAnnotationsValidation;
 
 namespace EnergyExporter.Utils;
 
-public class RecursiveDataAnnotationValidateOptions<TOptions> : IValidateOptions<TOptions> where TOptions : class {
+public class RecursiveDataAnnotationValidateOptions<TOptions> : IValidateOptions<TOptions> where TOptions : class
+{
     private readonly RecursiveDataAnnotationValidator _recursiveDataAnnotationValidator = new();
 
     public string Name { get; set; }
 
-    public RecursiveDataAnnotationValidateOptions(string optionsBuilderName) {
+    public RecursiveDataAnnotationValidateOptions(string optionsBuilderName)
+    {
         Name = optionsBuilderName;
     }
 
-    public ValidateOptionsResult Validate(string? name, TOptions options) {
+    public ValidateOptionsResult Validate(string? name, TOptions options)
+    {
         if (name != Name)
             return ValidateOptionsResult.Skip;
 

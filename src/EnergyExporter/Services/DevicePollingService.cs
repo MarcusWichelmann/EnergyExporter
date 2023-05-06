@@ -7,9 +7,10 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace EnergyExporter.Services; 
+namespace EnergyExporter.Services;
 
-public class DevicePollingService : IHostedService, IDisposable {
+public class DevicePollingService : IHostedService, IDisposable
+{
     private readonly ILogger<DevicePollingService> _logger;
     private readonly DeviceService _deviceService;
     private readonly IOptions<PollingOptions> _pollingOptions;
@@ -21,14 +22,16 @@ public class DevicePollingService : IHostedService, IDisposable {
         ILogger<DevicePollingService> logger,
         DeviceService deviceService,
         IOptions<PollingOptions> pollingOptions,
-        InfluxDbExporter influxDbExporter) {
+        InfluxDbExporter influxDbExporter)
+    {
         _logger = logger;
         _deviceService = deviceService;
         _pollingOptions = pollingOptions;
         _influxDbExporter = influxDbExporter;
     }
 
-    public async Task StartAsync(CancellationToken cancellationToken) {
+    public async Task StartAsync(CancellationToken cancellationToken)
+    {
         _logger.LogInformation("Starting device polling.");
 
         // Do an initial update
@@ -39,7 +42,8 @@ public class DevicePollingService : IHostedService, IDisposable {
         _timer = new Timer(OnTimerTick, null, interval, interval);
     }
 
-    public Task StopAsync(CancellationToken cancellationToken) {
+    public Task StopAsync(CancellationToken cancellationToken)
+    {
         _logger.LogInformation("Stopping device polling.");
 
         // Disable the timer
@@ -50,19 +54,24 @@ public class DevicePollingService : IHostedService, IDisposable {
 
     private async void OnTimerTick(object? state) => await PollDevicesAsync();
 
-    private async Task PollDevicesAsync() {
+    private async Task PollDevicesAsync()
+    {
         _logger.LogDebug("Polling devices.");
-        try {
+        try
+        {
             await _deviceService.QueryDevicesAsync();
             await _influxDbExporter.PushMetricsAsync();
 
             _logger.LogDebug("Polling completed.");
-        } catch (Exception ex) {
+        }
+        catch (Exception ex)
+        {
             _logger.LogError(ex, "Polling failed.");
         }
     }
 
-    public void Dispose() {
+    public void Dispose()
+    {
         _timer?.Dispose();
     }
 }

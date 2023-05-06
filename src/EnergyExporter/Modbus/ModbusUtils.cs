@@ -2,20 +2,23 @@ using System;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 
-namespace EnergyExporter.Modbus; 
+namespace EnergyExporter.Modbus;
 
-public enum RegisterEndianness {
+public enum RegisterEndianness
+{
     BigEndian,
     LittleEndian,
     MidLittleEndian
 }
 
-public static class ModbusUtils {
+public static class ModbusUtils
+{
     public const ushort SingleRegisterSize = 2;
 
     public static int GetValueRegisterCount(Type valueType) => GetValueSize(valueType) / SingleRegisterSize;
 
-    public static int GetValueSize(Type valueType) {
+    public static int GetValueSize(Type valueType)
+    {
         if (valueType.IsEnum)
             valueType = valueType.GetEnumUnderlyingType();
 
@@ -25,7 +28,8 @@ public static class ModbusUtils {
         return Marshal.SizeOf(valueType);
     }
 
-    public static object ReadValue(Type valueType, ReadOnlySpan<byte> data, RegisterEndianness endianness) {
+    public static object ReadValue(Type valueType, ReadOnlySpan<byte> data, RegisterEndianness endianness)
+    {
         if (valueType.IsEnum)
             valueType = valueType.GetEnumUnderlyingType();
 
@@ -36,9 +40,11 @@ public static class ModbusUtils {
                 nameof(valueType));
 
         // If values are encoded as mid-little-endian, swap each 2-byte pairs
-        if (endianness == RegisterEndianness.MidLittleEndian) {
+        if (endianness == RegisterEndianness.MidLittleEndian)
+        {
             Span<byte> swapped = new byte[valueSize];
-            for (var i = 0; i < valueSize; i += 2) {
+            for (var i = 0; i < valueSize; i += 2)
+            {
                 swapped[i] = data[i + 1];
                 swapped[i + 1] = data[i];
             }

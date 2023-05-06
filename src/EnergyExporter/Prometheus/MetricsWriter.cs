@@ -11,18 +11,21 @@ using Microsoft.Extensions.Logging;
 
 namespace EnergyExporter.Prometheus;
 
-public class MetricsWriter {
+public class MetricsWriter
+{
     private record MetricsEntry(IDevice Device, PropertyInfo Property, PrometheusMetricAttribute MetricAttribute);
 
     private readonly ILogger<MetricsWriter> _logger;
     private readonly DeviceService _deviceService;
 
-    public MetricsWriter(ILogger<MetricsWriter> logger, DeviceService deviceService) {
+    public MetricsWriter(ILogger<MetricsWriter> logger, DeviceService deviceService)
+    {
         _logger = logger;
         _deviceService = deviceService;
     }
 
-    public async Task WriteToStreamAsync(Stream stream) {
+    public async Task WriteToStreamAsync(Stream stream)
+    {
         await using var streamWriter = new StreamWriter(stream, new UTF8Encoding(false), -1, true);
 
         // Aggregate all device metrics based on the attributes on the objects
@@ -39,7 +42,8 @@ public class MetricsWriter {
         IEnumerable<IGrouping<string, MetricsEntry>> metricGroups =
             metrics.GroupBy(metric => metric.MetricAttribute.Name);
 
-        foreach (IGrouping<string, MetricsEntry> metricGroup in metricGroups) {
+        foreach (IGrouping<string, MetricsEntry> metricGroup in metricGroups)
+        {
             PrometheusMetricAttribute metricAttribute = metricGroup.First().MetricAttribute;
 
             // Check that the metric attributes are not contradictory
@@ -56,7 +60,8 @@ public class MetricsWriter {
             await streamWriter.WriteLineAsync(metricAttribute.GetTypeLine());
 
             // Write sample lines
-            foreach (MetricsEntry metricsEntry in metricGroup) {
+            foreach (MetricsEntry metricsEntry in metricGroup)
+            {
                 var value = (double)Convert.ChangeType(
                     metricsEntry.Property.GetValue(metricsEntry.Device)!,
                     typeof(double));

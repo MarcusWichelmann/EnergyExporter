@@ -1,12 +1,12 @@
 using System;
-using System.Text.Json.Serialization;
 using EnergyExporter.InfluxDb;
 using EnergyExporter.Modbus;
 using EnergyExporter.Prometheus;
 
-namespace EnergyExporter.Devices; 
+namespace EnergyExporter.Devices;
 
-public enum SolarEdgeMeterType : ushort {
+public enum SolarEdgeMeterType : ushort
+{
     SinglePhase = 201,
     SplitSinglePhase = 202,
     WyeConnectThreePhase = 203,
@@ -14,7 +14,8 @@ public enum SolarEdgeMeterType : ushort {
 }
 
 [Flags]
-public enum SolarEdgeMeterEvents : uint {
+public enum SolarEdgeMeterEvents : uint
+{
     PowerFailure = 0x4,
     UnderVoltage = 0x8,
     LowPowerFactor = 0x10,
@@ -32,12 +33,13 @@ public enum SolarEdgeMeterEvents : uint {
 }
 
 [InfluxDbMeasurement("solaredge_meter")]
-public class SolarEdgeMeter : SolarEdgeDevice {
+public class SolarEdgeMeter : SolarEdgeDevice
+{
     public static readonly ushort[] ModbusAddresses = { 0x9CB9, 0x9D67, 0x9E15 };
-    
+
     /// <inheritdoc />
     public override string DeviceType => "SolarEdgeMeter";
-    
+
     [StringModbusRegister(2, 32)]
     [InfluxDbMetric("manufacturer")]
     public string? Manufacturer { get; init; }

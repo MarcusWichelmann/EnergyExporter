@@ -22,10 +22,10 @@ public class ModbusReaderPool
         lock (_lock)
         {
             var key = new Key(host, port);
-            
+
             if (_readers.TryGetValue(key, out ModbusReader? reader))
                 return reader;
-            
+
             ILogger<ModbusReader> logger = _loggerFactory.CreateLogger<ModbusReader>();
             var newReader = new ModbusReader(logger, host, port);
             return _readers[key] = newReader;

@@ -1,11 +1,11 @@
-using System.Text.Json.Serialization;
 using EnergyExporter.InfluxDb;
 using EnergyExporter.Modbus;
 using EnergyExporter.Prometheus;
 
 namespace EnergyExporter.Devices;
 
-public enum SolarEdgeBatteryStatus : uint {
+public enum SolarEdgeBatteryStatus : uint
+{
     Off = 0,
     Standby = 1,
     Initializing = 2,
@@ -16,12 +16,13 @@ public enum SolarEdgeBatteryStatus : uint {
 }
 
 [InfluxDbMeasurement("solaredge_battery")]
-public class SolarEdgeBattery : SolarEdgeDevice {
+public class SolarEdgeBattery : SolarEdgeDevice
+{
     public static readonly ushort[] ModbusAddresses = { 0xE100, 0xE200 };
 
     /// <inheritdoc />
     public override string DeviceType => "SolarEdgeBattery";
-    
+
     [StringModbusRegister(0, 32)]
     [InfluxDbMetric("manufacturer")]
     public string? Manufacturer { get; init; }

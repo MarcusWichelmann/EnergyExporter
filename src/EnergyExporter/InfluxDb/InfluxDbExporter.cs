@@ -14,7 +14,8 @@ using Microsoft.Extensions.Options;
 
 namespace EnergyExporter.InfluxDb;
 
-public class InfluxDbExporter : IDisposable {
+public class InfluxDbExporter : IDisposable
+{
     private readonly ILogger<InfluxDbExporter> _logger;
     private readonly IOptions<ExportOptions> _exportOptions;
     private readonly DeviceService _deviceService;
@@ -24,7 +25,8 @@ public class InfluxDbExporter : IDisposable {
     public InfluxDbExporter(
         ILogger<InfluxDbExporter> logger,
         IOptions<ExportOptions> exportOptions,
-        DeviceService deviceService) {
+        DeviceService deviceService)
+    {
         _logger = logger;
         _exportOptions = exportOptions;
         _deviceService = deviceService;
@@ -34,7 +36,8 @@ public class InfluxDbExporter : IDisposable {
             _influxDbClient = new InfluxDBClient(influxDbOptions.Url, influxDbOptions.Token);
     }
 
-    public async Task PushMetricsAsync() {
+    public async Task PushMetricsAsync()
+    {
         if (_influxDbClient == null)
             return;
 
@@ -59,13 +62,14 @@ public class InfluxDbExporter : IDisposable {
         var measurementAttribute = device.GetType().GetCustomAttribute<InfluxDbMeasurementAttribute>();
         if (measurementAttribute == null)
             throw new Exception($"Device {device.GetType().Name} has no measurement attribute.");
-            
+
         string measurementName = measurementAttribute.Name;
         PointData measurement = PointData.Measurement(measurementName)
             .Timestamp(timestamp, WritePrecision.S)
             .Tag("device", device.DeviceIdentifier);
 
-        foreach (PropertyInfo property in device.GetType().GetProperties()) {
+        foreach (PropertyInfo property in device.GetType().GetProperties())
+        {
             var attribute = property.GetCustomAttribute<InfluxDbMetricAttribute>();
             if (attribute == null)
                 continue;
@@ -81,7 +85,8 @@ public class InfluxDbExporter : IDisposable {
     }
 
     /// <inheritdoc />
-    public void Dispose() {
+    public void Dispose()
+    {
         _influxDbClient?.Dispose();
     }
 }

@@ -3,18 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace EnergyExporter.Modbus; 
+namespace EnergyExporter.Modbus;
 
 /// <inheritdoc />
-public class StringModbusRegisterAttribute : ModbusRegisterAttribute {
+public class StringModbusRegisterAttribute : ModbusRegisterAttribute
+{
     public int Length { get; }
 
-    public StringModbusRegisterAttribute(ushort relativeRegisterAddress, int length) : base(relativeRegisterAddress) {
+    public StringModbusRegisterAttribute(ushort relativeRegisterAddress, int length) : base(relativeRegisterAddress)
+    {
         Length = length;
     }
 
     /// <inheritdoc />
-    public override IEnumerable<ushort> GetRelativeAddressesToRead(Type propertyType) {
+    public override IEnumerable<ushort> GetRelativeAddressesToRead(Type propertyType)
+    {
         int registerSize = Length / ModbusUtils.SingleRegisterSize;
         return Enumerable.Range(RelativeRegisterAddress, registerSize).Select(i => (ushort)i);
     }

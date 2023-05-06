@@ -2,20 +2,22 @@ using System;
 using System.ComponentModel;
 using System.Globalization;
 
-namespace EnergyExporter.Prometheus; 
+namespace EnergyExporter.Prometheus;
 
 /// <summary>
 /// Specifies that the value of this property should be exported for prometheus.
 /// </summary>
 [AttributeUsage(AttributeTargets.Property)]
-public class PrometheusMetricAttribute : Attribute {
+public class PrometheusMetricAttribute : Attribute
+{
     public MetricType Type { get; }
 
     public string Name { get; }
 
     public string Description { get; }
 
-    public PrometheusMetricAttribute(MetricType type, string name, string description) {
+    public PrometheusMetricAttribute(MetricType type, string name, string description)
+    {
         if (!Enum.IsDefined(typeof(MetricType), type))
             throw new InvalidEnumArgumentException(nameof(type), (int)type, typeof(MetricType));
 
@@ -28,7 +30,8 @@ public class PrometheusMetricAttribute : Attribute {
 
     public string GetTypeLine() => $"# TYPE {Name} {Type.ToTypeName()}";
 
-    public string GetSampleLine(string deviceIdentifier, double propertyValue) {
+    public string GetSampleLine(string deviceIdentifier, double propertyValue)
+    {
         if (string.IsNullOrWhiteSpace(deviceIdentifier))
             throw new ArgumentException("Value cannot be null or whitespace.", nameof(deviceIdentifier));
 

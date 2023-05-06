@@ -1,14 +1,17 @@
 using System;
 
-namespace EnergyExporter.Prometheus; 
+namespace EnergyExporter.Prometheus;
 
-public enum MetricType {
+public enum MetricType
+{
     Counter,
     Gauge
 }
 
-public static class MetricTypeExtensions {
-    public static string ToTypeName(this MetricType metricType) {
+public static class MetricTypeExtensions
+{
+    public static string ToTypeName(this MetricType metricType)
+    {
         return metricType switch {
             MetricType.Counter => "counter",
             MetricType.Gauge => "gauge",
