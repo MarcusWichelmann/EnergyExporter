@@ -1,4 +1,4 @@
-# EnergyExporter (previously SolarEdge exporter)
+# EnergyExporter (previously SolarEdgeExporter)
 
 **This project was renamed and refactored to be usable for other devices than just SolarEdge.**
 
