@@ -1,4 +1,6 @@
-# EnergyExporter
+# EnergyExporter (previously SolarEdge exporter)
+
+**This project was renamed and refactored to be usable for other devices than just SolarEdge.**
 
 Collects data from Modbus devices like SolarEdge inverters and exports it as JSON, XML or to Prometheus/InfluxDB.
 
@@ -72,7 +74,6 @@ The available URLs are:
 - `/swagger`: Interactive API documentation
 
 The REST API will export the data in a readable JSON format. If you prefer XML, just set the HTTP `Accept` header to `application/xml` and you will get the response as XML.
-
 
 ## Vendors
 
