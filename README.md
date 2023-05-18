@@ -2,7 +2,7 @@
 
 **This project was renamed and refactored to be usable for other devices than just SolarEdge.**
 
-Collects data from Modbus devices like SolarEdge inverters and exports it as JSON, XML or to Prometheus/InfluxDB.
+Collects data from Modbus devices like SolarEdge inverters and exports it as JSON, XML or to Prometheus/InfluxDB and Mqtt.
 
 The data is queried over Modbus TCP. For now, the following devices are supported:
 - SolarEdge (over SunSpec)
@@ -30,6 +30,10 @@ on start, the `Unit` number is probably wrong and it doesn't receive any respons
 
 The `InfluxDB` section in the export configuration is fully optional and can be configured to push all queried metrics directly to an InfluxDB instance. If you don't need that, just
 remove that section.
+
+Likewise, the `Mqtt` section in the export configuration is optional and can be configured to publish all queried metrics directly to an MQTT broker. If you don't need it, just
+remove that section, too.
+
 
 If needed, you can enable extended logging by setting the default log level in `appsettings.json` to `Debug`.
 
