@@ -2,7 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using EnergyExporter.InfluxDb;
-using EnergyExporter.MQTT;
+using EnergyExporter.Mqtt;
 using EnergyExporter.Options;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;

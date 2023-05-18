@@ -1,7 +1,7 @@
 using System.Text.Json.Serialization;
 using EnergyExporter.InfluxDb;
 using EnergyExporter.Modbus;
-using EnergyExporter.MQTT;
+using EnergyExporter.Mqtt;
 using EnergyExporter.Options;
 using EnergyExporter.Prometheus;
 using EnergyExporter.Services;
