@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using EnergyExporter.InfluxDb;
 using EnergyExporter.Modbus;
+using EnergyExporter.MQTT;
 using EnergyExporter.Options;
 using EnergyExporter.Prometheus;
 using EnergyExporter.Services;
@@ -56,6 +57,7 @@ builder.Services.AddSwaggerGen(
 builder.Services.AddSingleton<ModbusReaderPool>();
 builder.Services.AddSingleton<MetricsWriter>();
 builder.Services.AddSingleton<InfluxDbExporter>();
+builder.Services.AddSingleton<MqttExporter>();
 builder.Services.AddSingleton<DeviceService>();
 builder.Services.AddHostedService<DevicePollingService>();
 

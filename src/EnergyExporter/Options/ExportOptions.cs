@@ -12,6 +12,9 @@ public class ExportOptions
     [JsonPropertyName("InfluxDB")]
     public InfluxDbOptions? InfluxDb { get; init; }
 
+    [JsonPropertyName("Mqtt")]
+    public MqttOptions? Mqtt { get; init; }
+
     public class InfluxDbOptions
     {
         [Required]
@@ -25,5 +28,21 @@ public class ExportOptions
 
         [Required]
         public string Token { get; init; } = null!;
+    }
+
+    public class MqttOptions
+    {
+        [Required]
+        public string TcpServer { get; init; } = null!;
+
+        public int Port { get; init; } = 1883;
+
+        public string ClientId { get; init; } = "EnergyExplorer";
+        
+        public string Topic { get; init; } = "EnergyExplorer";
+        
+        public string? User { get; init; } = null;
+        
+        public string? Password { get; init; } = null;
     }
 }

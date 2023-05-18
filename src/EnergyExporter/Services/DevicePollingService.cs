@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using EnergyExporter.InfluxDb;
+using EnergyExporter.MQTT;
 using EnergyExporter.Options;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -15,6 +16,7 @@ public class DevicePollingService : IHostedService, IDisposable
     private readonly DeviceService _deviceService;
     private readonly IOptions<PollingOptions> _pollingOptions;
     private readonly InfluxDbExporter _influxDbExporter;
+    private readonly MqttExporter _mqttExporter;
 
     private Timer? _timer;
 
@@ -22,12 +24,14 @@ public class DevicePollingService : IHostedService, IDisposable
         ILogger<DevicePollingService> logger,
         DeviceService deviceService,
         IOptions<PollingOptions> pollingOptions,
-        InfluxDbExporter influxDbExporter)
+        InfluxDbExporter influxDbExporter,
+        MqttExporter mqttExporter)
     {
         _logger = logger;
         _deviceService = deviceService;
         _pollingOptions = pollingOptions;
         _influxDbExporter = influxDbExporter;
+        _mqttExporter = mqttExporter;
     }
 
     public async Task StartAsync(CancellationToken cancellationToken)
@@ -60,9 +64,12 @@ public class DevicePollingService : IHostedService, IDisposable
         try
         {
             await _deviceService.QueryDevicesAsync();
-            await _influxDbExporter.PushMetricsAsync();
-
             _logger.LogDebug("Polling completed.");
+
+            _logger.LogDebug("Pushing metrics.");
+            await _influxDbExporter.PushMetricsAsync();
+            await _mqttExporter.PublishMetricsAsync();
+            _logger.LogDebug("Pushing completed.");
         }
         catch (Exception ex)
         {
