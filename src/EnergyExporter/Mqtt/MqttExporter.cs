@@ -14,7 +14,7 @@ using MQTTnet;
 using MQTTnet.Client;
 using MQTTnet.Protocol;
 
-namespace EnergyExporter.MQTT;
+namespace EnergyExporter.Mqtt;
 
 public class MqttExporter : IDisposable
 {

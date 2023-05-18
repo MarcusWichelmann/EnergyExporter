@@ -37,9 +37,9 @@ public class ExportOptions
 
         public int Port { get; init; } = 1883;
 
-        public string ClientId { get; init; } = "EnergyExplorer";
+        public string ClientId { get; init; } = "EnergyExporter";
         
-        public string Topic { get; init; } = "EnergyExplorer";
+        public string Topic { get; init; } = "EnergyExporter";
         
         public string? User { get; init; } = null;
         
