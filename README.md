@@ -2,13 +2,18 @@
 
 **This project was renamed and refactored to be usable for other devices than just SolarEdge.**
 
-Collects data from Modbus devices like SolarEdge inverters and exports it as JSON, XML or to Prometheus/InfluxDB and Mqtt.
+Collects data from Modbus devices like inverters, batteries or energy meters and exports it as JSON, XML or to Prometheus/InfluxDB and Mqtt.
 
 The data is queried over Modbus TCP. For now, the following devices are supported:
 - SolarEdge (over SunSpec)
   - Inverters
   - Energy meters
   - Batteries (StorEdge, BYD, ...)
+- Janitza
+  - Energy Meters
+    - `UMG 96-PA` with `UMG 96-PA-RCM-EL` Ethernet module
+
+Other device models that use similar Modbus registers may also work.
 
 It's possible to query any number of devices at the same time.
 
@@ -90,3 +95,7 @@ You don't have to use the SolarEdge app, just connect using your phone's WiFi se
 Modbus TCP in the configuration interface.
 
 You can also use the SolarEdge SetApp to enable Modbus TCP, but that will require you to be a verified installer and grant you only read-only access otherwise.
+
+### Janitza
+
+This exporter was tested with the `UMG 96-PA` power analyzer with the `UMG 96-PA-RCM-EL` Ethernet module. It should also be possible to use an external Modbus gateway instead of the `UMG 96-PA-RCM-EL`.

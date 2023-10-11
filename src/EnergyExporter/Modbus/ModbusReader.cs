@@ -40,7 +40,7 @@ public class ModbusReader
             _logger.LogDebug(
                 "Reading {Device} at address {StartRegister} from {Host} and unit {Unit}.",
                 typeof(TDevice).Name,
-                $"0x{startRegister}",
+                $"0x{startRegister:x}",
                 _host,
                 unit);
 

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 
 namespace EnergyExporter.Options;
 
@@ -9,8 +10,10 @@ public class DevicesOptions
     public const string Key = "Devices";
 
     public SolarEdgeModbusDevice[] SolarEdge { get; init; } = Array.Empty<SolarEdgeModbusDevice>();
+    
+    public JanitzaModbusDevice[] Janitza { get; init; } = Array.Empty<JanitzaModbusDevice>();
 
-    public IEnumerable<ModbusDevice> ModbusDevices => SolarEdge;
+    public IEnumerable<ModbusDevice> ModbusDevices => SolarEdge.Cast<ModbusDevice>().Concat(Janitza);
 
     public enum SolarEdgeModbusDeviceType
     {
@@ -19,6 +22,11 @@ public class DevicesOptions
         Battery
     }
 
+    public enum JanitzaModbusDeviceType
+    {
+        PowerAnalyzer
+    }
+    
     public class SolarEdgeModbusDevice : ModbusDevice
     {
         [Required]
@@ -30,6 +38,13 @@ public class DevicesOptions
         public string? SerialNumberOverride { get; init; }
     }
 
+    public class JanitzaModbusDevice : ModbusDevice
+    {
+        [Required]
+        [EnumDataType(typeof(JanitzaModbusDeviceType))]
+        public JanitzaModbusDeviceType Type { get; init; }
+    }
+    
     public class ModbusDevice
     {
         [Required]

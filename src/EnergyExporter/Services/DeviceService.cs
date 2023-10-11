@@ -58,6 +58,8 @@ public class DeviceService
             return modbusDevice switch {
                 DevicesOptions.SolarEdgeModbusDevice solarEdgeModbusDevice => await QuerySolarEdgeModbusDeviceAsync(
                     solarEdgeModbusDevice),
+                DevicesOptions.JanitzaModbusDevice janitzaModbusDevice => await QueryJanitzaModbusDeviceAsync(
+                    janitzaModbusDevice),
                 _ => throw new ArgumentOutOfRangeException()
             };
         }
@@ -88,6 +90,22 @@ public class DeviceService
         if (modbusDevice.SerialNumberOverride != null)
             device.SerialNumber = modbusDevice.SerialNumberOverride;
 
+        return device;
+    }
+
+    private async Task<IDevice> QueryJanitzaModbusDeviceAsync(DevicesOptions.JanitzaModbusDevice modbusDevice)
+    {
+        ModbusReader modbusReader = _modbusReaderPool.ReaderFor(modbusDevice.Host, modbusDevice.Port);
+
+        JanitzaDevice device = modbusDevice.Type switch
+        {
+            DevicesOptions.JanitzaModbusDeviceType.PowerAnalyzer => await modbusReader
+                .ReadDeviceAsync<JanitzaPowerAnalyzer>(
+                    modbusDevice.Unit,
+                    JanitzaPowerAnalyzer.ModbusAddress),
+            _ => throw new ArgumentOutOfRangeException()
+        };
+            
         return device;
     }
 }

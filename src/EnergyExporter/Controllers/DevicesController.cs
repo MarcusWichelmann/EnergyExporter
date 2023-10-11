@@ -54,4 +54,19 @@ public class DevicesController : ControllerBase
     public ActionResult<SolarEdgeBattery> GetSolarEdgeBatteries(string id) =>
         _deviceService.Devices.OfType<SolarEdgeBattery>().FirstOrDefault(d => d.DeviceIdentifier == id)
         ?? (ActionResult<SolarEdgeBattery>)NotFound();
+    
+    [HttpGet("janitza")]
+    public IEnumerable<object> GetJanitzaDevices()
+    {
+        // We have to cast to object here, so polymorphism is respected when serializing the objects.
+        return _deviceService.Devices.OfType<JanitzaDevice>().Select(device => (object)device);
+    }
+
+    [HttpGet("janitza/power-analyzers")]
+    public IEnumerable<JanitzaPowerAnalyzer> GetJanitzaPowerAnalyzers() => _deviceService.Devices.OfType<JanitzaPowerAnalyzer>();
+
+    [HttpGet("janitza/power-analyzers/{id}")]
+    public ActionResult<JanitzaPowerAnalyzer> GetJanitzaPowerAnalyzer(string id) =>
+        _deviceService.Devices.OfType<JanitzaPowerAnalyzer>().FirstOrDefault(d => d.DeviceIdentifier == id)
+        ?? (ActionResult<JanitzaPowerAnalyzer>)NotFound();
 }
