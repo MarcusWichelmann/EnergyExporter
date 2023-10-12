@@ -1,7 +1,7 @@
+using System.Text.Json.Serialization;
 using EnergyExporter.InfluxDb;
 using EnergyExporter.Modbus;
 using EnergyExporter.Prometheus;
-using Newtonsoft.Json;
 
 namespace EnergyExporter.Devices;
 
