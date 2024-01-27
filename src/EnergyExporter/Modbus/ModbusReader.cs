@@ -18,6 +18,8 @@ public class ModbusReader
     private readonly string _host;
     private readonly ushort _port;
 
+    private TcpClient? _tcpClient;
+    
     private readonly ModbusTcpClient _modbusClient = new();
     private readonly SemaphoreSlim _modbusLock = new(1);
 
@@ -34,7 +36,7 @@ public class ModbusReader
         try
         {
             // Ensure the client is connected
-            if (!_modbusClient.IsConnected)
+            if (_tcpClient?.Connected != true)
                 await ReconnectAsync();
 
             _logger.LogDebug(
@@ -101,7 +103,8 @@ public class ModbusReader
             catch
             {
                 // Make sure the connection gets reestablished after a failed read, just in case...
-                _modbusClient.Disconnect();
+                _tcpClient?.Close();
+                _tcpClient = null;
                 throw;
             }
 
@@ -117,11 +120,14 @@ public class ModbusReader
     {
         _logger.LogInformation("Connecting to modbus server at {Host}.", _host);
         
-        var tcpClient = new TcpClient();
-        await tcpClient.ConnectAsync(_host, _port);
+        // Close previous TCP client.
+        _tcpClient?.Close();
+        
+        _tcpClient = new TcpClient();
+        await _tcpClient.ConnectAsync(_host, _port);
 
         _modbusClient.ReadTimeout = 5000;
-        _modbusClient.Initialize(tcpClient, ModbusEndianness.LittleEndian);
+        _modbusClient.Initialize(_tcpClient, ModbusEndianness.LittleEndian);
 
         _logger.LogInformation("Modbus connection to {Host} established.", _host);
     }
