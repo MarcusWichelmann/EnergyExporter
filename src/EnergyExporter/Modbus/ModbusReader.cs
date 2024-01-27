@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
+using System.Net.Sockets;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -35,7 +35,7 @@ public class ModbusReader
         {
             // Ensure the client is connected
             if (!_modbusClient.IsConnected)
-                Reconnect();
+                await ReconnectAsync();
 
             _logger.LogDebug(
                 "Reading {Device} at address {StartRegister} from {Host} and unit {Unit}.",
@@ -113,17 +113,15 @@ public class ModbusReader
         }
     }
 
-    private void Reconnect()
+    private async Task ReconnectAsync()
     {
         _logger.LogInformation("Connecting to modbus server at {Host}.", _host);
-
-        if (!IPAddress.TryParse(_host, out IPAddress? address))
-            throw new ModbusReadException($"Invalid IP address: {_host}");
-
-        var endpoint = new IPEndPoint(address, _port);
+        
+        var tcpClient = new TcpClient();
+        await tcpClient.ConnectAsync(_host, _port);
 
         _modbusClient.ReadTimeout = 5000;
-        _modbusClient.Connect(endpoint);
+        _modbusClient.Initialize(tcpClient, ModbusEndianness.LittleEndian);
 
         _logger.LogInformation("Modbus connection to {Host} established.", _host);
     }
