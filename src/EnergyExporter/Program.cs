@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using System.Threading.Tasks;
 using EnergyExporter.InfluxDb;
 using EnergyExporter.Modbus;
 using EnergyExporter.Mqtt;
@@ -7,11 +8,9 @@ using EnergyExporter.Prometheus;
 using EnergyExporter.Services;
 using EnergyExporter.Utils;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.OpenApi.Models;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder();
 
@@ -40,37 +39,39 @@ builder.Services.AddControllers()
         options => {
             options.JsonSerializerOptions.WriteIndented = indentJson;
             options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            options.JsonSerializerOptions.Converters.Add(new NaNAsNullDoubleConverter());
         });
 builder.Services.AddProblemDetails();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(
-    options => {
-        options.SwaggerDoc(
-            "v1",
-            new OpenApiInfo {
-                Title = "Energy Exporter",
-                Version = "v1"
-            });
-    });
+builder.Services.AddOpenApi(
+    options => options.AddDocumentTransformer(
+        (document, _, _) => {
+            document.Info.Title = "Energy Exporter";
+            document.Info.Version = "v1";
+            return Task.CompletedTask;
+        }));
 
 // Register services
 builder.Services.AddSingleton<ModbusReaderPool>();
 builder.Services.AddSingleton<MetricsWriter>();
 builder.Services.AddSingleton<InfluxDbExporter>();
 builder.Services.AddSingleton<MqttExporter>();
+builder.Services.AddSingleton<StatusEventLog>();
 builder.Services.AddSingleton<DeviceService>();
-builder.Services.AddHostedService<DevicePollingService>();
+builder.Services.AddSingleton<DevicePollingService>();
+builder.Services.AddHostedService(sp => sp.GetRequiredService<DevicePollingService>());
 
 WebApplication app = builder.Build();
 
 app.UseExceptionHandler();
 app.UseStatusCodePages();
 
-app.UseSwagger();
-app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Energy Exporter v1"));
+// API description at /openapi/v1.json, interactive docs at /swagger
+app.MapOpenApi();
+app.UseSwaggerUI(c => c.SwaggerEndpoint("/openapi/v1.json", "Energy Exporter v1"));
 
-// Info text
-app.MapGet("/", context => context.Response.WriteAsync("Energy Exporter"));
+// Management UI (wwwroot/index.html)
+app.UseDefaultFiles();
+app.UseStaticFiles();
 
 // API routes
 app.MapControllers();

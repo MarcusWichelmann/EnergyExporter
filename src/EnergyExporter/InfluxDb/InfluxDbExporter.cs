@@ -36,6 +36,8 @@ public class InfluxDbExporter : IDisposable
             _influxDbClient = new InfluxDBClient(influxDbOptions.Url, influxDbOptions.Token);
     }
 
+    public bool Enabled => _influxDbClient != null;
+
     public async Task PushMetricsAsync()
     {
         if (_influxDbClient == null)
@@ -75,6 +77,8 @@ public class InfluxDbExporter : IDisposable
                 continue;
 
             object? value = property.GetValue(device);
+            if (value is double.NaN or float.NaN)
+                continue; // Not implemented by the device; InfluxDB rejects NaN fields.
             if (value != null && value.GetType().IsEnum)
                 value = value.ToString();
 
