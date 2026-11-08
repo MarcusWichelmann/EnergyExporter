@@ -7,7 +7,6 @@ using EnergyExporter.Prometheus;
 using EnergyExporter.Services;
 using EnergyExporter.Utils;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -40,6 +39,7 @@ builder.Services.AddControllers()
         options => {
             options.JsonSerializerOptions.WriteIndented = indentJson;
             options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            options.JsonSerializerOptions.Converters.Add(new NaNAsNullDoubleConverter());
         });
 builder.Services.AddProblemDetails();
 builder.Services.AddEndpointsApiExplorer();
@@ -58,8 +58,10 @@ builder.Services.AddSingleton<ModbusReaderPool>();
 builder.Services.AddSingleton<MetricsWriter>();
 builder.Services.AddSingleton<InfluxDbExporter>();
 builder.Services.AddSingleton<MqttExporter>();
+builder.Services.AddSingleton<StatusEventLog>();
 builder.Services.AddSingleton<DeviceService>();
-builder.Services.AddHostedService<DevicePollingService>();
+builder.Services.AddSingleton<DevicePollingService>();
+builder.Services.AddHostedService(sp => sp.GetRequiredService<DevicePollingService>());
 
 WebApplication app = builder.Build();
 
@@ -69,8 +71,9 @@ app.UseStatusCodePages();
 app.UseSwagger();
 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Energy Exporter v1"));
 
-// Info text
-app.MapGet("/", context => context.Response.WriteAsync("Energy Exporter"));
+// Management UI (wwwroot/index.html)
+app.UseDefaultFiles();
+app.UseStaticFiles();
 
 // API routes
 app.MapControllers();

@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Energy Exporter</title>
+<style>
+  :root {
+    --bg: #f6f7f9; --card: #ffffff; --text: #1d2330; --muted: #667085; --border: #e3e6ec;
+    --ok: #1a7f4b; --ok-bg: #e3f5ea; --bad: #b42318; --bad-bg: #fde8e6; --warn: #9a6700; --warn-bg: #fff4d6;
+    --accent: #2f6fde; --accent-text: #ffffff;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #12151b; --card: #1b2029; --text: #e6e9ef; --muted: #98a2b3; --border: #2b323e;
+      --ok: #5fd394; --ok-bg: #173826; --bad: #ff8a80; --bad-bg: #3d1a18; --warn: #f5c451; --warn-bg: #3a2f12;
+      --accent: #5b8ff0; --accent-text: #0d1117;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+         font: 14px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  header { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between;
+           padding: 16px; max-width: 1200px; margin: 0 auto; }
+  h1 { font-size: 20px; margin: 0; }
+  h2 { font-size: 15px; margin: 24px 0 10px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+  main { max-width: 1200px; margin: 0 auto; padding: 0 16px 32px; }
+  .meta { color: var(--muted); font-size: 13px; }
+  .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  button { font: inherit; border: 1px solid var(--border); background: var(--card); color: var(--text);
+           border-radius: 6px; padding: 6px 12px; cursor: pointer; }
+  button.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-text); }
+  button:disabled { opacity: .55; cursor: default; }
+  .grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px; min-width: 0; }
+  .card-head { display: flex; justify-content: space-between; gap: 8px; align-items: flex-start; }
+  .card-title { font-weight: 600; font-size: 15px; }
+  .sub { color: var(--muted); font-size: 12px; overflow-wrap: anywhere; }
+  .pill { font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+  .pill.ok { color: var(--ok); background: var(--ok-bg); }
+  .pill.bad { color: var(--bad); background: var(--bad-bg); }
+  .pill.wait { color: var(--warn); background: var(--warn-bg); }
+  .kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0; }
+  .kpi { background: var(--bg); border-radius: 8px; padding: 8px; min-width: 0; }
+  .kpi .label { color: var(--muted); font-size: 11px; }
+  .kpi .value { font-size: 16px; font-weight: 600; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+  .error { color: var(--bad); background: var(--bad-bg); border-radius: 6px; padding: 6px 8px; font-size: 12px;
+           margin: 8px 0; overflow-wrap: anywhere; }
+  .stale { color: var(--warn); font-size: 12px; margin-top: 8px; }
+  dl.stats { display: grid; grid-template-columns: auto 1fr; gap: 2px 12px; font-size: 12px; margin: 8px 0; }
+  dl.stats dt { color: var(--muted); } dl.stats dd { margin: 0; font-variant-numeric: tabular-nums; }
+  details { margin-top: 8px; } summary { cursor: pointer; color: var(--muted); font-size: 12px; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  td { padding: 3px 4px; border-bottom: 1px solid var(--border); vertical-align: top; overflow-wrap: anywhere; }
+  td:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+  .card-foot { display: flex; justify-content: flex-end; margin-top: 10px; }
+  .events { list-style: none; margin: 0; padding: 0; }
+  .events li { display: grid; grid-template-columns: 150px 1fr; gap: 10px; padding: 6px 0;
+               border-bottom: 1px solid var(--border); font-size: 13px; }
+  .events time { color: var(--muted); font-variant-numeric: tabular-nums; }
+  .lvl-Warning { color: var(--warn); } .lvl-Error { color: var(--bad); }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; }
+  .row .card { flex: 1 1 220px; }
+  #banner { display: none; margin: 0 16px 12px; }
+  footer { color: var(--muted); font-size: 12px; text-align: center; padding: 16px; }
+  footer a { color: var(--accent); }
+  @media (max-width: 520px) {
+    .grid { grid-template-columns: 1fr; }
+    .kpis { grid-template-columns: repeat(2, 1fr); }
+    .events li { grid-template-columns: 1fr; gap: 0; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Energy Exporter</h1>
+    <div class="meta" id="meta">Loading…</div>
+  </div>
+  <div class="actions">
+    <button class="primary" id="poll-now">Poll now</button>
+    <button id="reconnect-all">Reconnect all</button>
+  </div>
+</header>
+<main>
+  <div id="banner" class="error"></div>
+
+  <h2>Devices</h2>
+  <div class="grid" id="devices"></div>
+
+  <h2>Exporters</h2>
+  <div class="row" id="exporters"></div>
+
+  <h2>Recent events</h2>
+  <div class="card"><ul class="events" id="events"></ul></div>
+</main>
+<footer>
+  <a href="metrics">/metrics</a> · <a href="devices">/devices</a> · <a href="api/status">/api/status</a> · <a href="swagger">API docs</a>
+</footer>
+
+<script>
+(() => {
+  "use strict";
+
+  // Key readings shown per device type: [property, label, unit, decimals]
+  const HIGHLIGHTS = {
+    SolarEdgeInverter: [
+      ["acPower", "AC power", "W", 0], ["dcPower", "DC power", "W", 0], ["status", "Status", "", null],
+      ["acVoltageP1", "AC voltage", "V", 1], ["acFrequency", "Frequency", "Hz", 2],
+      ["heatSinkTemperature", "Heat sink", "°C", 1], ["dcVoltage", "DC voltage", "V", 1],
+      ["acCurrent", "AC current", "A", 2], ["acTotalEnergyProduced", "Lifetime energy", "kWh", 1, 1000],
+    ],
+    SolarEdgeMeter: [
+      ["acPower", "AC power", "W", 0], ["acVoltageAvg", "Voltage (avg)", "V", 1], ["acFrequency", "Frequency", "Hz", 2],
+      ["acCurrent", "AC current", "A", 2], ["exportedEnergy", "Exported", "kWh", 1, 1000],
+      ["importedEnergy", "Imported", "kWh", 1, 1000],
+    ],
+    SolarEdgeBattery: [
+      ["power", "Power", "W", 0], ["chargePercent", "State of charge", "%", 1], ["status", "Status", "", null],
+      ["voltage", "Voltage", "V", 1], ["avgTemperature", "Temperature", "°C", 1],
+      ["capacityPercent", "Health", "%", 1],
+    ],
+    JanitzaPowerAnalyzer: [],
+  };
+
+  const $ = (id) => document.getElementById(id);
+  const esc = (v) => String(v).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+  function ago(iso) {
+    if (!iso) return "never";
+    const s = Math.round((Date.now() - new Date(iso).getTime()) / 1000);
+    if (s < 5) return "just now";
+    if (s < 90) return `${s}s ago`;
+    if (s < 5400) return `${Math.round(s / 60)} min ago`;
+    if (s < 129600) return `${Math.round(s / 3600)} h ago`;
+    return `${Math.round(s / 86400)} d ago`;
+  }
+  function duration(fromIso) {
+    const s = Math.max(0, Math.round((Date.now() - new Date(fromIso).getTime()) / 1000));
+    const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60);
+    return h ? `${h} h ${m} min` : m ? `${m} min` : `${s}s`;
+  }
+  const time = (iso) => new Date(iso).toLocaleString();
+
+  function fmt(value, unit, decimals, divisor) {
+    if (value === null || value === undefined) return "n/a";
+    if (typeof value !== "number") return esc(value);
+    const v = divisor ? value / divisor : value;
+    const text = decimals === null ? String(v) : v.toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+    return unit ? `${text} ${unit}` : text;
+  }
+
+  function deviceCard(d) {
+    const s = d.status, r = d.lastReading;
+    const waiting = s.totalPolls === 0;
+    const pill = waiting ? '<span class="pill wait">Waiting</span>'
+      : s.online ? '<span class="pill ok">Online</span>' : '<span class="pill bad">Offline</span>';
+    const ident = r ? [r.model, r.serialNumber].filter(Boolean).join(" · ") : "";
+
+    let kpis = "";
+    if (r) {
+      const fields = (HIGHLIGHTS[r.deviceType] || []).filter(([k]) => k in r);
+      kpis = '<div class="kpis">' + fields.map(([k, label, unit, dec, div]) =>
+        `<div class="kpi"><div class="label">${esc(label)}</div><div class="value">${fmt(r[k], unit, dec, div)}</div></div>`).join("") + "</div>";
+    }
+
+    const err = !s.online && s.lastError
+      ? `<div class="error">${esc(s.lastError)}</div>` : "";
+    const stale = !s.online && r
+      ? `<div class="stale">Showing last known values from ${esc(ago(s.lastSuccess))}.</div>` : "";
+
+    const all = r ? `<details><summary>All values</summary><table>${
+      Object.entries(r).filter(([k]) => k !== "deviceType").map(([k, v]) =>
+        `<tr><td>${esc(k)}</td><td>${v === null ? "n/a" : esc(typeof v === "object" ? JSON.stringify(v) : v)}</td></tr>`).join("")
+    }</table></details>` : "";
+
+    return `<div class="card">
+      <div class="card-head">
+        <div><div class="card-title">${esc(s.name)}</div>
+          <div class="sub">${esc(s.host)}:${esc(s.port)}${ident ? " · " + esc(ident) : ""}</div></div>
+        ${pill}
+      </div>
+      ${err}${kpis}${stale}
+      <dl class="stats">
+        <dt>Last success</dt><dd>${esc(ago(s.lastSuccess))}</dd>
+        ${!s.online && s.offlineSince ? `<dt>Offline for</dt><dd>${esc(duration(s.offlineSince))} (${s.consecutiveFailures} failed polls)</dd>` : ""}
+        <dt>Poll time</dt><dd>${s.totalPolls ? Math.round(s.lastDurationMs) + " ms" : "–"}</dd>
+        <dt>Failures</dt><dd>${s.totalFailures} of ${s.totalPolls} polls</dd>
+      </dl>
+      ${all}
+      <div class="card-foot"><button data-reconnect="${s.id}">Reconnect</button></div>
+    </div>`;
+  }
+
+  function exporterCard(e) {
+    const pill = !e.enabled ? '<span class="pill wait">Not configured</span>'
+      : e.healthy === null ? '<span class="pill wait">Waiting</span>'
+      : e.healthy ? '<span class="pill ok">OK</span>' : '<span class="pill bad">Failing</span>';
+    return `<div class="card"><div class="card-head"><div class="card-title">${esc(e.name)}</div>${pill}</div>
+      ${e.enabled ? `<dl class="stats"><dt>Last success</dt><dd>${esc(ago(e.lastSuccess))}</dd></dl>` : ""}
+      ${e.healthy === false && e.lastError ? `<div class="error">${esc(e.lastError)}</div>` : ""}</div>`;
+  }
+
+  // Keep "All values" sections open across refreshes
+  const openDetails = new Set();
+  document.addEventListener("toggle", (ev) => {
+    const card = ev.target.closest && ev.target.closest("[data-device]");
+    if (!card) return;
+    ev.target.open ? openDetails.add(card.dataset.device) : openDetails.delete(card.dataset.device);
+  }, true);
+
+  function render(st) {
+    $("meta").textContent =
+      `Polling every ${st.pollingIntervalSeconds}s · last poll ${ago(st.lastPoll)}` +
+      (st.isPolling ? " · polling…" : "") + ` · up since ${time(st.startedAt)}`;
+
+    $("devices").innerHTML = st.devices.length
+      ? st.devices.map((d) => `<div data-device="${d.status.id}">${deviceCard(d)}</div>`).join("")
+      : '<div class="card">No devices configured. Add them to the "Devices" section of appsettings.json.</div>';
+    for (const id of openDetails) {
+      const el = document.querySelector(`[data-device="${id}"] details`);
+      if (el) el.open = true;
+    }
+
+    $("exporters").innerHTML = [
+      `<div class="card"><div class="card-head"><div class="card-title">Prometheus</div><span class="pill ok">Serving</span></div>
+        <div class="sub">Scrape <a href="metrics">/metrics</a></div></div>`,
+      ...st.exporters.map(exporterCard),
+    ].join("");
+
+    $("events").innerHTML = st.events.length
+      ? st.events.slice(0, 30).map((e) =>
+          `<li><time>${esc(time(e.timestamp))}</time><span class="lvl-${esc(e.level)}"><b>${esc(e.source)}</b>: ${esc(e.message)}</span></li>`).join("")
+      : '<li><span>No events yet.</span></li>';
+  }
+
+  async function refresh() {
+    try {
+      const res = await fetch("api/status", { headers: { Accept: "application/json" }, cache: "no-store" });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      render(await res.json());
+      $("banner").style.display = "none";
+    } catch (err) {
+      $("banner").textContent = `Cannot reach the exporter: ${err.message}`;
+      $("banner").style.display = "block";
+    }
+  }
+
+  async function post(url, button) {
+    button.disabled = true;
+    try {
+      await fetch(url, { method: "POST" });
+      setTimeout(refresh, 1500);
+    } finally {
+      setTimeout(() => { button.disabled = false; }, 1500);
+    }
+  }
+
+  $("poll-now").addEventListener("click", (e) => post("api/poll", e.currentTarget));
+  $("reconnect-all").addEventListener("click", (e) => post("api/reconnect", e.currentTarget));
+  $("devices").addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-reconnect]");
+    if (b) post(`api/devices/${b.dataset.reconnect}/reconnect`, b);
+  });
+
+  refresh();
+  setInterval(refresh, 3000);
+})();
+</script>
+</body>
+</html>

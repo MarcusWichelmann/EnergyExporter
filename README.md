@@ -47,16 +47,16 @@ If needed, you can enable extended logging by setting the default log level in `
 #### Using Docker
 
 This repository provides Docker images using the GitHub Container Registry to get things running
-easily: [Images](https://github.com/users/MarcusWichelmann/packages/container/package/energy-exporter)
+easily: [Images](https://github.com/users/jamesvarty/packages/container/package/energy-exporter)
 
 Sample docker-compose.yml:
 
 ```yaml
 energy-exporter:
-    image: ghcr.io/marcuswichelmann/energy-exporter:3
+    image: ghcr.io/jamesvarty/energy-exporter:master
     container_name: energy-exporter
     ports:
-        - "14552:80"
+        - "14552:14552"
     volumes:
         - /path/to/appsettings.json:/app/appsettings.json
     restart: always
@@ -74,13 +74,38 @@ You can also install the [.NET SDK](https://dotnet.microsoft.com/) on your syste
 
 While the exporter is running and has access to the Modbus TCP interface, it will query all data for the available devices in a regular interval (`IntervalSeconds`).
 
-Now visit the IP address and port (`14552` by default) of the running exporter to see the queried device data.
+Now visit the IP address and port (`14552` by default) of the running exporter to open the management UI.
 
 The available URLs are:
 
+- `/`: Management UI showing whether each device is online, its live values, the last error, the state of the
+  InfluxDB/MQTT exporters and recent events. It also has buttons to poll immediately or force a reconnect.
+- `/api/status`: The data behind the management UI as JSON (`POST /api/poll`, `POST /api/reconnect` and
+  `POST /api/devices/{id}/reconnect` trigger the actions)
 - `/metrics`: Prometheus metrics
 - `/devices`: REST API (see Swagger documentation)
 - `/swagger`: Interactive API documentation
+
+Besides the device values, `/metrics` contains `energy_exporter_device_up`, `energy_exporter_device_polls_total`,
+`energy_exporter_device_poll_failures_total` and `energy_exporter_device_poll_duration_seconds` for every configured
+device, so you can alert on a device that stopped responding.
+
+Registers that a SunSpec device reports as "not implemented" (e.g. phase 2 and 3 values on a single-phase inverter)
+are left out of the metrics, InfluxDB and MQTT, and show up as `null` in the REST API.
+
+### Connection handling
+
+All settings in the `Polling` section are optional:
+
+| Setting | Default | Description |
+| --- | --- | --- |
+| `IntervalSeconds` | `5` | Time between polls. A poll never overlaps with the previous one. |
+| `ConnectTimeoutSeconds` | `5` | How long to wait for the TCP connection to a device. |
+| `ReadTimeoutSeconds` | `5` | How long to wait for a single Modbus response. |
+| `Retries` | `1` | How often a read on an existing connection is retried with a fresh connection, e.g. after the inverter dropped it. |
+
+When a device stops responding (for example a SolarEdge inverter at night), a single warning is logged and the
+device is marked offline in the UI. Further failures are only logged at `Debug` level until the device comes back.
 
 The REST API will export the data in a readable JSON format. If you prefer XML, just set the HTTP `Accept` header to `application/xml` and you will get the response as XML.
 

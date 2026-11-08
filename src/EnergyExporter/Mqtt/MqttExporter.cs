@@ -39,7 +39,8 @@ public class MqttExporter : IDisposable
         {
             var mqttClientOptions = new MqttClientOptionsBuilder()
                 .WithTcpServer(mqttExportOptions.TcpServer, mqttExportOptions.Port)
-                .WithClientId(mqttExportOptions.ClientId);
+                .WithClientId(mqttExportOptions.ClientId)
+                .WithTimeout(TimeSpan.FromSeconds(10));
 
             if (mqttExportOptions is { User: not null, Password: not null })
             {
@@ -58,6 +59,8 @@ public class MqttExporter : IDisposable
             };
         }
     }
+
+    public bool Enabled => _mqttClient != null;
 
     public async Task PublishMetricsAsync()
     {
@@ -100,6 +103,8 @@ public class MqttExporter : IDisposable
                 continue;
 
             object? value = property.GetValue(device);
+            if (value is double.NaN or float.NaN)
+                continue; // Not implemented by the device.
             if (value != null && value.GetType().IsEnum)
                 value = value.ToString();
             else if (value is double doubleValue)

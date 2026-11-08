@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -65,11 +66,63 @@ public class MetricsWriter
                 var value = (double)Convert.ChangeType(
                     metricsEntry.Property.GetValue(metricsEntry.Device)!,
                     typeof(double));
+
+                // Skip values the device reports as "not implemented"
+                if (double.IsNaN(value))
+                    continue;
+
                 await streamWriter.WriteLineAsync(
                     metricsEntry.MetricAttribute.GetSampleLine(metricsEntry.Device.DeviceIdentifier, value));
             }
 
             await streamWriter.WriteLineAsync();
         }
+
+        await WriteExporterHealthAsync(streamWriter);
+    }
+
+    /// <summary>
+    /// Writes metrics about the exporter's own view of each configured device, so outages can be
+    /// alerted on and distinguished from the device simply reporting zero.
+    /// </summary>
+    private async Task WriteExporterHealthAsync(StreamWriter writer)
+    {
+        IReadOnlyList<DeviceStatus> statuses = _deviceService.GetStatuses();
+        if (statuses.Count == 0)
+            return;
+
+        static string Labels(DeviceStatus s) =>
+            $"{{target=\"{s.Host}:{s.Port}/{s.Unit}\",type=\"{s.Vendor}{s.Type}\",index=\"{s.Index?.ToString() ?? ""}\"}}";
+
+        async Task WriteMetric(string name, string type, string help, Func<DeviceStatus, double> value)
+        {
+            await writer.WriteLineAsync($"# HELP {name} {help}");
+            await writer.WriteLineAsync($"# TYPE {name} {type}");
+            foreach (DeviceStatus status in statuses)
+                await writer.WriteLineAsync(
+                    $"{name}{Labels(status)} {value(status).ToString(CultureInfo.InvariantCulture)}");
+            await writer.WriteLineAsync();
+        }
+
+        await WriteMetric(
+            "energy_exporter_device_up",
+            "gauge",
+            "Whether the last poll of the device succeeded (1) or failed (0)",
+            s => s.Online ? 1 : 0);
+        await WriteMetric(
+            "energy_exporter_device_polls_total",
+            "counter",
+            "Number of polls of the device",
+            s => s.TotalPolls);
+        await WriteMetric(
+            "energy_exporter_device_poll_failures_total",
+            "counter",
+            "Number of failed polls of the device",
+            s => s.TotalFailures);
+        await WriteMetric(
+            "energy_exporter_device_poll_duration_seconds",
+            "gauge",
+            "Duration of the last poll of the device",
+            s => s.LastDurationMs / 1000);
     }
 }

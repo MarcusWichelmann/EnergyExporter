@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 
+using EnergyExporter.Devices;
+
 namespace EnergyExporter.Options;
 
 public class DevicesOptions
@@ -27,7 +29,7 @@ public class DevicesOptions
         PowerAnalyzer
     }
     
-    public class SolarEdgeModbusDevice : ModbusDevice
+    public class SolarEdgeModbusDevice : ModbusDevice, IValidatableObject
     {
         [Required]
         [EnumDataType(typeof(SolarEdgeModbusDeviceType))]
@@ -36,6 +38,19 @@ public class DevicesOptions
         public byte Index { get; init; }
 
         public string? SerialNumberOverride { get; init; }
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            int maxIndex = Type switch {
+                SolarEdgeModbusDeviceType.Meter => SolarEdgeMeter.ModbusAddresses.Length - 1,
+                SolarEdgeModbusDeviceType.Battery => SolarEdgeBattery.ModbusAddresses.Length - 1,
+                _ => 0
+            };
+            if (Index > maxIndex)
+                yield return new ValidationResult(
+                    $"Index {Index} is out of range for a SolarEdge {Type} at {Host}; it must be between 0 and {maxIndex}.",
+                    new[] { nameof(Index) });
+        }
     }
 
     public class JanitzaModbusDevice : ModbusDevice
@@ -50,6 +65,7 @@ public class DevicesOptions
         [Required]
         public string Host { get; init; } = null!;
 
+        [Range(1, 65535)]
         public ushort Port { get; init; }
 
         public byte Unit { get; init; }
