@@ -11,7 +11,6 @@ using EnergyExporter.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MQTTnet;
-using MQTTnet.Client;
 using MQTTnet.Protocol;
 
 namespace EnergyExporter.Mqtt;
@@ -48,7 +47,7 @@ public class MqttExporter : IDisposable
                     mqttClientOptions.WithCredentials(mqttExportOptions.User, mqttExportOptions.Password);
             }
 
-            var factory = new MqttFactory();
+            var factory = new MqttClientFactory();
             _mqttClient = factory.CreateMqttClient();
             _mqttClientOptions = mqttClientOptions.Build();
 

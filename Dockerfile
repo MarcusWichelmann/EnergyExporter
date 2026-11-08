@@ -2,7 +2,7 @@
 # This avoids running the .NET SDK under QEMU emulation, which is slow and unreliable on arm64.
 # Defaults for the legacy (non-BuildKit) builder; BuildKit/buildx set these automatically.
 ARG BUILDPLATFORM=linux/amd64
-FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0 AS publish
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:10.0 AS publish
 
 ARG TARGETARCH=amd64
 ARG TARGETOS=linux
@@ -18,7 +18,7 @@ RUN dotnet restore EnergyExporter.csproj -r $(cat /tmp/rid)
 COPY src/EnergyExporter/ .
 RUN dotnet publish EnergyExporter.csproj -r $(cat /tmp/rid) -c Release -o /app/publish --no-self-contained --no-restore
 
-FROM mcr.microsoft.com/dotnet/aspnet:8.0
+FROM mcr.microsoft.com/dotnet/aspnet:10.0
 WORKDIR /app
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "EnergyExporter.dll"]
